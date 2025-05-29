@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ספר המידות</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(to bottom right, #0b1e3f, #142d5c);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .title {
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .section {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .text {
+            font-size: 28px;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="title" id="category">אמת</div>
+    <div class="section" id="section">א.</div>
+    <div class="text" id="content">מִי שֶׁרוֹצֶה לְדַבֵּק אֶת עַצְמוֹ בְּהַשֵּׁם...</div>
+
+    <script>
+        const entries = [
+            {
+                category: "אמת",
+                section: "א.",
+                content: "מִי שֶׁרוֹצֶה לְדַבֵּק אֶת עַצְמוֹ בְּהַשֵּׁם יִתְבָּרַךְ, עַד שֶׁיֵּלֵךְ בְּמַחֲשַׁבְתּוֹ מֵהֵיכָל אֶל הֵיכָל וְיִרְאֶה אֶת הַהֵיכָלוֹת בְּעֵינֵי הַשֵּׂכֶל, יִשְׁמֹר אֶת עַצְמוֹ מִלּוֹמַר שֶׁקֶר אֲפִלּוּ בְּטָעוּת."
+            },
+            {
+                category: "אמת",
+                section: "ב.",
+                content: "מֻתָּר לְשַׁנּוֹת בִּדְבַר הַשָּׁלוֹם."
+            },
+            {
+                category: "אמת",
+                section: "ג.",
+                content: "כַּת שַׁקָּרִים אֵינָם מְקַבְּלִים פְּנֵי הַשְּׁכִינָה."
+            },
+            {
+                category: "אמת",
+                section: "ד.",
+                content: "אֱמֶת הִיא יְסוֹד הַכֹּל."
+            },
+            {
+                category: "אמת",
+                section: "ה.",
+                content: "כָּל הַמְסַפֵּר שֶׁקֶר – אֵינוֹ יָכוֹל לִרְאוֹת פְּנֵי מָרוֹ."
+            },
+            {
+                category: "אמת",
+                section: "ו.",
+                content: "אֵין דָּבָר קַיָּם בָּעוֹלָם אֶלָּא עַל אֱמֶת."
+            },
+            {
+                category: "אמת",
+                section: "ז.",
+                content: "שֶׁקֶר אֵין לוֹ רַגְלַיִם."
+            },
+            {
+                category: "אמת",
+                section: "ח.",
+                content: "כָּל מִי שֶׁדְּבַק בָּאֱמֶת – הַשֵּׁם עִמּוֹ."
+            },
+            {
+                category: "אמת",
+                section: "ט.",
+                content: "אֱמֶת הִיא תְּכֻנָּה שֶׁל הַצַּדִּיקִים."
+            },
+            {
+                category: "אמת",
+                section: "י.",
+                content: "הָעוֹלָם נִדְרָךְ עַל גַּבֵּי הַשֶּׁקֶר – וּמִתְקַיֵּם בִּזְכוּת הָאֱמֶת."
+            }
+        ];
+
+        let current = 0;
+        function updateDisplay() {
+            const item = entries[current];
+            document.getElementById('category').textContent = item.category;
+            document.getElementById('section').textContent = item.section;
+            document.getElementById('content').textContent = item.content;
+            current = (current + 1) % entries.length;
+        }
+
+        setInterval(updateDisplay, 30000); // 30 שניות
+    </script>
+</body>
+</html>
