@@ -2,113 +2,135 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ספר המידות</title>
+    <title>ספר המידות - רבי נחמן</title>
+    <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=David+Libre:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
-            padding: 60px 5%; /* Adjusted padding for potentially wider topic selector */
-            min-height: 100vh; /* Use min-height to ensure content visibility */
+            padding: 20px 5% 60px 5%; /* Adjusted padding for top title and bottom signature */
+            min-height: 100vh;
             background: linear-gradient(to bottom right, #0b1e2f, #1a2e4f);
             color: white;
-            font-family: 'Arial', 'Narkis Block', 'David Libre', sans-serif; /* Added more Hebrew-friendly fonts */
+            font-family: 'Frank Ruhl Libre', 'David Libre', 'Arial', 'Narkis Block', sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             box-sizing: border-box;
-            overflow-x: hidden; /* Prevent horizontal scrollbar if content is too wide */
-            overflow-y: auto; /* Allow vertical scroll if content (like controls) is too tall for viewport */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
+
+        .page-title {
+            font-size: 1.5em; /* Smaller title for the book name */
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            position: fixed;
+            top: 20px; /* Position at the top */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 5px;
+            z-index: 1000; /* Ensure it's above content but below fullscreen controls potentially */
+        }
+
         .top-bar {
             position: fixed;
-            top: 10px; /* Slightly adjusted position */
-            width: 100%;
+            top: 70px; /* Adjusted to be below the new page title */
+            width: 90%; /* Centered controls */
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: space-between;
-            align-items: center; /* Vertically align items in top bar */
-            padding: 0 15px; /* Adjusted padding */
+            justify-content: center; /* Center the controls container */
+            align-items: center;
+            padding: 0 15px;
             box-sizing: border-box;
             z-index: 999;
-            flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+            flex-wrap: wrap;
         }
         .controls-container {
             display: flex;
-            gap: 10px; /* Space between control elements */
+            gap: 10px;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: center; /* Ensure controls inside are centered */
         }
-        .top-text, .control-element {
-            font-size: 16px; /* Slightly smaller for more space */
+        .control-element {
+            font-size: 1em; /*统一控制元素字体大小 (16px default) */
             opacity: 0.9;
             background: rgba(255, 255, 255, 0.15);
-            padding: 8px 12px;
+            padding: 10px 15px; /* Increased padding for better touch */
             border-radius: 5px;
             color: white;
             border: none;
             cursor: pointer;
+            font-family: 'Arial', sans-serif; /* Simpler font for controls */
         }
-        .control-element select {
+        .control-element select, .control-element label {
              background: transparent;
              color: white;
              border: none;
              padding: 2px;
+             font-family: 'Arial', sans-serif;
         }
         .control-element option {
             background: #1a2e4f;
             color: white;
         }
-        .fullscreen-btn {
-            /* Style already good */
-        }
+
         .content-display {
-            max-width: 800px; /* Limit width for better readability */
+            max-width: 900px; /* Increased max-width for larger fonts */
             width: 90%;
+            margin-top: 120px; /* Extra space for fixed top bar and title */
+            margin-bottom: 80px; /* Extra space for fixed signature */
         }
         .topic-display, .letter-display, .text-display {
-            margin-bottom: 15px;
+            margin-bottom: 20px; /* Increased margin */
             transition: opacity 0.5s ease-in-out;
+            color: white; /* Unified color */
         }
         .topic-display {
-            font-size: 2.2em;
+            font-size: 3.3em; /* Significantly larger ~1.5x */
             font-weight: bold;
-            color: #FFD700; /* Gold color for topic */
         }
         .letter-display {
-            font-size: 1.8em;
-            color: #ADD8E6; /* Light blue for letter */
+            font-size: 2.7em; /* Significantly larger ~1.5x */
         }
         .text-display {
-            font-size: 1.6em; /* Adjusted for potentially long texts */
-            line-height: 1.8;
-            min-height: 100px; /* Ensure space even for short texts to reduce jumpiness */
+            font-size: 2.4em; /* Significantly larger ~1.5x */
+            line-height: 1.9; /* Adjusted line height */
+            min-height: 150px;
         }
         .nanach-signature {
             position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
+            bottom: 15px;
+            right: 15px;
+            font-size: 1.8em; /* Slightly larger signature */
             font-weight: bold;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.75);
             display: flex;
             white-space: nowrap;
-            font-family: 'David Libre', 'Narkis Block', serif; /* More traditional Hebrew font */
+            font-family: 'Frank Ruhl Libre', 'David Libre', serif;
+            z-index: 1000; /* Ensure it's above other content */
         }
 
         .nanach-signature span {
             opacity: 0;
             animation: fadeIn依次 1s forwards;
+            margin-left: 2px; /* Small space between animated parts */
         }
-
         .nanach-signature .letter1 { animation-delay: 0.5s; }
         .nanach-signature .letter2 { animation-delay: 1.0s; }
         .nanach-signature .letter3 { animation-delay: 1.5s; }
         .nanach-signature .letter4 { animation-delay: 2.0s; }
-        .nanach-signature .letter5 { animation-delay: 2.5s; }
+        .nanach-signature .letter5 { animation-delay: 2.5s; margin-left: 15px; } /* Space before מאומן */
         .nanach-signature .letter6 { animation-delay: 3.0s; }
         .nanach-signature .letter7 { animation-delay: 3.5s; }
         .nanach-signature .letter8 { animation-delay: 4.0s; }
+        .nanach-signature .letter9 { animation-delay: 4.5s; }
 
 
         @keyframes fadeIn依次 {
@@ -116,30 +138,54 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 600px) {
-            .top-bar {
-                flex-direction: column;
-                align-items: center;
-            }
-            .controls-container {
-                margin-top:10px;
-                justify-content: center;
-            }
-            .topic-display { font-size: 1.8em; }
-            .letter-display { font-size: 1.5em; }
-            .text-display { font-size: 1.3em; }
-            body { padding: 80px 5% 60px 5%; /* Adjust padding for smaller screens with more controls at top */ }
+        /* Fullscreen adjustments */
+        body:fullscreen .top-bar,
+        body:fullscreen .page-title {
+            display: none;
+        }
+        /* For Webkit browsers */
+        body:-webkit-full-screen .top-bar,
+        body:-webkit-full-screen .page-title {
+            display: none;
+        }
+        /* For MS browsers */
+        body:-ms-fullscreen .top-bar,
+        body:-ms-fullscreen .page-title {
+            display: none;
+        }
+
+
+        @media (max-width: 768px) { /* Adjustments for smaller screens */
+            body { padding-top: 130px; /* Ensure space for fixed elements */ }
+            .page-title { font-size: 1.2em; top:10px; }
+            .top-bar { top: 55px; flex-direction: column; }
+            .controls-container { margin-top:5px; justify-content: center; }
+            .topic-display { font-size: 2.5em; }
+            .letter-display { font-size: 2em; }
+            .text-display { font-size: 1.8em; }
+            .nanach-signature { font-size: 1.5em; }
+            .content-display { margin-top: 80px; } /* Adjust margin if top-bar wraps */
 
         }
+         @media (max-width: 480px) { /* Further adjustments for very small screens */
+            .control-element { font-size: 0.9em; padding: 8px 10px;}
+            .topic-display { font-size: 2em; }
+            .letter-display { font-size: 1.6em; }
+            .text-display { font-size: 1.5em; }
+            .nanach-signature { font-size: 1.2em; bottom:10px; right:10px; }
+        }
+
 
     </style>
 </head>
 <body>
+    <div class="page-title">ספר המידות - רבי נחמן</div>
+
     <div class="top-bar">
         <div class="controls-container">
-            <button id="prev-btn" class="control-element top-text">הקודם</button>
-            <button id="next-btn" class="control-element top-text">הבא</button>
-            <button id="random-toggle" class="control-element top-text">סדר: רגיל</button>
+            <button id="prev-btn" class="control-element">הקודם</button>
+            <button id="next-btn" class="control-element">הבא</button>
+            <button id="random-toggle" class="control-element">סדר: רגיל</button>
             <div class="control-element">
                 <label for="timing-select">זמן (שניות): </label>
                 <select id="timing-select" onchange="updateInterval()">
@@ -159,7 +205,7 @@
                 </select>
             </div>
         </div>
-        <button class="fullscreen-btn top-text" onclick="toggleFullScreen()">מסך מלא</button>
+        <button class="fullscreen-btn control-element" onclick="toggleFullScreen()">מסך מלא</button>
     </div>
 
     <div class="content-display">
@@ -170,19 +216,18 @@
 
     <div class="nanach-signature">
         <span class="letter1">נ</span>
-        <span class="letter2">נח</span>
-        <span class="letter3">נחמ</span>
-        <span class="letter4">נחמן</span>
-        <span class="letter5" style="margin-left:5px;">מ</span>
+        <span class="letter2">&nbsp;נח</span>
+        <span class="letter3">&nbsp;נחמ</span>
+        <span class="letter4">&nbsp;נחמן</span>
+        <span class="letter5">מ</span>
         <span class="letter6">א</span>
         <span class="letter7">ו</span>
-        <span class="letter8">מן</span>
+        <span class="letter8">מ</span>
+        <span class="letter9">ן</span>
     </div>
 
     <script>
         const entries = [
-            // כל ספר המידות יוכנס כאן. מאחר והוא ארוך מאוד, אצרף אותו בקובץ נפרד או שתצטרך להעתיק אותו מההסבר.
-            // לצורך הדגמה, הנה ההתחלה:
             { topic: "אמת", letter: "א", text: "הַבּוֹרֵחַ מִן הַכָּבוֹד, הַכָּבוֹד רוֹדֵף אַחֲרָיו. וְהָרוֹדֵף אַחַר הַכָּבוֹד, הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ. וְכָל שֶׁכֵּן מִי שֶׁמַּשִּׂיג גְּבוּל חֲבֵרוֹ לְהִתְכַּבֵּד בִּכְבוֹדוֹ, שֶׁאָז בְּוַדַּאי הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ." },
             { topic: "אמת", letter: "ב", text: "עַל יְדֵי אֱמֶת דְּקִדּוּשָׁה בָּא עַל יְדֵי זֶה שֶׁמֶץ מִנְהוּ דְּקִדּוּשָׁה." },
             { topic: "אמת", letter: "ג", text: "עַל יְדֵי אֱמֶת נַעֲשֶׂה שָׁלוֹם." },
@@ -192,113 +237,7 @@
             { topic: "אמת", letter: "ז", text: "אֱמֶת הוּא רְפוּאָה לְכָל הַמַּכּוֹת." },
             { topic: "אמת", letter: "ח", text: "עַל יְדֵי אֱמֶת בָּאִים לְשִׂמְחָה." },
             { topic: "אמת", letter: "ט", text: "עַל יְדֵי אֱמֶת נִצּוֹלִין מִן הַחֲנֻפָּה." },
-            { topic: "אמת", letter: "י", text: "עַל יְדֵי אֱמֶת נִתְקַבְּלִין הַתְּפִלּוֹת." },
-            { topic: "אמת", letter: "יא", text: "אֱמֶת הוּא אֶחָד." },
-            { topic: "אמת", letter: "יב", text: "אֱמֶת שַׁיָּךְ לִבְרִית." },
-            { topic: "אמת", letter: "יג", text: "הַשֶּׁקֶר אֵין לוֹ רַגְלַיִם, אֲבָל הָאֱמֶת עוֹמֵד לָעַד וְקַיָּם לָנֶצַח." },
-            { topic: "אמת", letter: "יד", text: "עַל יְדֵי אֱמֶת נִכְנָעִין הָאוֹיְבִים תַּחְתָּיו." },
-            { topic: "אמת", letter: "טו", text: "כָּל הַדְּבָרִים שֶׁאָדָם עוֹשֶׂה, צָרִיךְ שֶׁיִּהְיֶה בִּבְחִינַת אֱמֶת." },
-            { topic: "אמת", letter: "טז", text: "צָרִיךְ לְקַשֵּׁר עַצְמוֹ לְהָאֱמֶת, שֶׁהוּא הַקָּדוֹשׁ-בָּרוּךְ-הוּא, וְעַל יְדֵי זֶה יִזְכֶּה לְשׁוֹן הַקֹּדֶשׁ." },
-            { topic: "אמת", letter: "יז", text: "כְּשֶׁאָדָם מְדַבֵּר אֱמֶת, הוּא כְּמוֹ מְקַבֵּל אֶת כָּל הַתּוֹרָה." },
-            { topic: "אמת", letter: "יח", text: "הַקָּדוֹשׁ-בָּרוּךְ-הוּא שׂוֹנֵא אֶת מִי שֶׁאוֹמֵר אֶחָד בַּפֶּה וְאֶחָד בַּלֵּב." },
-            { topic: "אמת", letter: "יט", text: "עַל יְדֵי שֶׁקֶר אָדָם נִדְחֶה מִלִּפְנֵי הַמָּקוֹם." },
-            { topic: "אמת", letter: "כ", text: "עַל יְדֵי אֱמֶת זוֹכִין לְהִתְפַּלֵּל." },
-            { topic: "אמת", letter: "כא", text: "עַל יְדֵי אֱמֶת בָּאִים לְעַיִן טוֹבָה." },
-            { topic: "אמת", letter: "כב", text: "כְּשֶׁבָּאִים עַל הָאָדָם יִסּוּרִים, יִתְלֶה אוֹתָם בְּחֶסְרוֹן אֱמוּנָה וֶאֱמֶת." },
-            { topic: "אמת", letter: "כג", text: "עַל יְדֵי אֱמֶת נִתְגַּדֵּל שְׁמוֹ יִתְבָּרַךְ." },
-            { topic: "הכנסת אורחים", letter: "א", text: "הַכְנָסַת אוֹרְחִים גְּדוֹלָה מִקַּבָּלַת פְּנֵי שְׁכִינָה." },
-            { topic: "הכנסת אורחים", letter: "ב", text: "הַכְנָסַת אוֹרְחִים מְכַפֶּרֶת עֲוֹנוֹת." },
-            { topic: "הכנסת אורחים", letter: "ג", text: "הַכְנָסַת אוֹרְחִים מַצֶּלֶת מִדִּינָהּ שֶׁל גֵּיהִנֹּם." },
-            { topic: "הכנסת אורחים", letter: "ד", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים זוֹכִין לְבָנִים." },
-            { topic: "הכנסת אורחים", letter: "ה", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים הַשָּׁלוֹם מָצוּי בְּתוֹךְ בֵּיתוֹ." },
-            { topic: "הכנסת אורחים", letter: "ו", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים הַשְּׁכִינָה שׁוֹרָה בְּתוֹךְ בֵּיתוֹ." },
-            { topic: "אהבה", letter: "א", text: "אַהֲבַת הַבּוֹרֵא יִתְבָּרַךְ שְׁמוֹ, הִיא תַכְלִית הַיְּדִיעָה." },
-            { topic: "אהבה", letter: "ב", text: "צָרִיךְ לְהַמְשִׁיךְ אַהֲבָה בָּעוֹלָם." },
-            { topic: "אהבה", letter: "ג", text: "עַל יְדֵי אַהֲבָה בָּא שָׁלוֹם לָעוֹלָם." },
-            { topic: "אהבה", letter: "ד", text: "עַל יְדֵי אֲהַבַת חֲבֵרִים דְּבֵקוּת בַּבּוֹרֵא." },
-            { topic: "אהבה", letter: "ה", text: "עַל יְדֵי אַהֲבָה יְכוֹלִין לָבוֹא לְרוּחַ הַקֹּדֶשׁ." },
-            { topic: "אהבה", letter: "ו", text: "לֶאֱהֹב אֶת הַצַּדִּיקִים, זֶה תִּקּוּן לְפַחַד." },
-            { topic: "אהבה", letter: "ז", text: "הָאַהֲבָה שֶׁהָאָדָם אוֹהֵב אֶת הַמָּקוֹם, בָּזֶה הוּא מְגַדֵּל כְּבוֹדוֹ יִתְבָּרַךְ." },
-            { topic: "אהבה", letter: "ח", text: "עִקַּר הָאַהֲבָה לְהַשֵּׁם יִתְבָּרַךְ הִיא עַל יְדֵי הַתּוֹרָה." },
-            { topic: "אהבה", letter: "ט", text: "עַל יְדֵי אַהֲבָה נִתְעַלֶּה מַזָּלוֹ." },
-            { topic: "אהבה", letter: "י", text: "סְגֻלַּת הָאַהֲבָה, כְּשֶׁנּוֹשְׂאִין וְנוֹתְנִין בֶּאֱמוּנָה." },
-            { topic: "אמונה", letter: "א", text: "אֱמוּנָה הִיא רֹאשׁ כָּל הַמִּדּוֹת." },
-            { topic: "אמונה", letter: "ב", text: "עַל יְדֵי אֱמוּנָה בָּא שָׁלוֹם בָּעוֹלָם." },
-            { topic: "אמונה", letter: "ג", text: "עַל יְדֵי אֱמוּנָה מַמְשִׁיכִין הַשְׁגָּחָה." },
-            { topic: "אמונה", letter: "ד", text: "עַל יְדֵי אֱמוּנָה מְקַבְּלִין עֹל מַלְכוּת שָׁמַיִם." },
-            { topic: "אמונה", letter: "ה", text: "עַל יְדֵי אֱמוּנָה מַשְׂפִּיעִין לְהַכֹּחוֹת הָעֶלְיוֹנִים." },
-            { topic: "אמונה", letter: "ו", text: "עַל יְדֵי אֱמוּנָה מַמְתִּיקִין אֶת הַדִּינִים." },
-            { topic: "אמונה", letter: "ז", text: "עַל יְדֵי אֱמוּנָה מַצִּילִין מִצָּרוֹת." },
-            { topic: "אמונה", letter: "ח", text: "עַל יְדֵי אֱמוּנָה מְבַטְּלִין כִּשּׁוּף." },
-            { topic: "אמונה", letter: "ט", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִגֵּאוּת." },
-            { topic: "אמונה", letter: "י", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִכַּעַס." },
-            { topic: "אמונה", letter: "יא", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִשְּׁבוּעַת שָׁוְא." },
-            { topic: "אמונה", letter: "יב", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִלָּשׁוֹן הָרָע." },
-            { topic: "אמונה", letter: "יג", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מֵעַצְבוּת." },
-            { topic: "אמונה", letter: "יד", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִן הַשִּׁכְחָה." },
-            { topic: "אמונה", letter: "טו", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִן הַגָּלוּת." },
-            { topic: "אמונה", letter: "טז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְחָכְמָה." },
-            { topic: "אמונה", letter: "יז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְעוֹשֶׁר." },
-            { topic: "אמונה", letter: "יח", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְבָנִים." },
-            { topic: "אמונה", letter: "יט", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְחַיִּים אֲרֻכִּים." },
-            { topic: "אמונה", letter: "כ", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִתְשׁוּבָה." },
-            { topic: "אמונה", letter: "כא", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִגְאֻלָּה." },
-            { topic: "אמונה", letter: "כב", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְשִׂמְחָה." },
-            { topic: "אמונה", letter: "כג", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִרְפוּאָה." },
-            { topic: "אמונה", letter: "כד", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהִתְפַּלֵּל." },
-            { topic: "אמונה", letter: "כה", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְאַרְבַּע כִּתּוֹת שֶׁמְּקַבְּלוֹת פְּנֵי שְׁכִינָה." },
-            { topic: "אמונה", letter: "כו", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לַעֲשׂוֹת צְדָקָה." },
-            { topic: "אמונה", letter: "כז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהִתְקָרֵב לְצַדִּיקִים." },
-            { topic: "אמונה", letter: "כח", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְנַחֲלָה בְּלִי מְצָרִים." },
-            { topic: "אמונה", letter: "כט", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהַכְנִיעַ אֶת הַשׂוֹנְאִים." },
-            { topic: "אמונה", letter: "ל", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְקַיֵּם אֶת הַמִּצְוֹת." },
-            { topic: "אמונה", letter: "לא", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְכָל הַטּוֹבוֹת שֶׁבָּעוֹלָם." },
-            { topic: "אמונה", letter: "לב", text: "כָּל זְמַן שֶׁהָאָדָם מַאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, הוּא בִּבְחִינַת בֵּן לְהַשֵּׁם יִתְבָּרַךְ." },
-            { topic: "אמונה", letter: "לג", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, אֵינוֹ מִתְיָרֵא מִשּׁוּם אָדָם." },
-            { topic: "אמונה", letter: "לד", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, הוּא תָּמִיד בְּשִׂמְחָה." },
-            { topic: "אמונה", letter: "לה", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, מַצְלִיחַ בְּכָל דְּרָכָיו." },
-            { topic: "אמונה", letter: "לו", text: "כְּשֶׁאָדָם בָּא לִידֵי אֱמוּנָה, נִדְמֶה לוֹ כְּאִלּוּ כָּל הָעוֹלָם שֶׁלּוֹ." },
-            { topic: "אכילה", letter: "א", text: "עִקַּר הָאֲכִילָה צְרִיכָה לִהְיוֹת בִּקְדֻשָּׁה." },
-            { topic: "אכילה", letter: "ב", text: "עַל יְדֵי אֲכִילָה בִּקְדֻשָּׁה יְכוֹלִין לְתַקֵּן פְּגַם אֲכִילַת עֵץ הַדַּעַת." },
-            { topic: "אכילה", letter: "ג", text: "עַל יְדֵי אֲכִילָה נִתּוֹסֵף דַּעַת." },
-            { topic: "אכילה", letter: "ד", text: "עַל יְדֵי אֲכִילָה שֶׁל שַׁבָּת וְיוֹם טוֹב בָּא שָׁלוֹם בָּעוֹלָם." },
-            { topic: "אכילה", letter: "ה", text: "עַל יְדֵי אֲכִילָה כְּשֵׁרָה, נִצּוֹלִין מִן הַשִּׁכְחָה." },
-            { topic: "אכילה", letter: "ו", text: "עַל יְדֵי אֲכִילָה נִתְתַּקְּנִין הַמֹּחִין." },
-            { topic: "אכילה", letter: "ז", text: "מִי שֶׁמְּבַזֶּה סְעוּדָּתוֹ שֶׁל חֲבֵרוֹ, סוֹפוֹ שֶׁיִּצְטָרֵךְ לוֹ." },
-            { topic: "אכילה", letter: "ח", text: "מִי שֶׁזּוֹלֵל וְסוֹבֵא, עוֹבֵר עַל 'בַּל תַּשְׁחִית'." },
-            { topic: "אכילה", letter: "ט", text: "אָסוּר לֶאֱכֹל קֹדֶם שֶׁיִּתֵּן מַאֲכַל לִבְהֶמְתּוֹ." },
-            { topic: "אכילה", letter: "י", text: "עַל יְדֵי אֲכִילָה נִכְלָלִין נִיצוֹצוֹת קְדוֹשׁוֹת בְּהַנְּשָׁמָה." },
-            { topic: "אכילה", letter: "יא", text: "עַל יְדֵי אֲכִילָה בִּקְדֻשָּׁה, זוֹכֶה לְהַשָּׂגַת אֱלֹקוּת." },
-            { topic: "אלמן", letter: "א", text: "כָּל הַמְנַחֵם אֶת הָאַלְמָן, כְּאִלּוּ מְנַחֵם אֶת הַשְּׁכִינָה." },
-            { topic: "ארץ-ישראל", letter: "א", text: "אֶרֶץ יִשְׂרָאֵל הִיא מְקוֹר הַקְּדֻשָּׁה." },
-            { topic: "ארץ-ישראל", letter: "ב", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לֶאֱמוּנָה." },
-            { topic: "ארץ-ישראל", letter: "ג", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְחָכְמָה." },
-            { topic: "ארץ-ישראל", letter: "ד", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְחַיִּים אֲרֻכִּים." },
-            { topic: "ארץ-ישראל", letter: "ה", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְשָׁלוֹם." },
-            { topic: "ארץ-ישראל", letter: "ו", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לִגְאֻלָּה." },
-            { topic: "ארץ-ישראל", letter: "ז", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְתַקֵּן אֶת הַבְּרִית." },
-            { topic: "ארץ-ישראל", letter: "ח", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְהִתְפַּלֵּל." },
-            { topic: "ארץ-ישראל", letter: "ט", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְהִתְקָרֵב לְצַדִּיקִים." },
-            { topic: "ארץ-ישראל", letter: "י", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְעַיִן טוֹבָה." },
-            { topic: "ארץ-ישראל", letter: "יא", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְבַטֵּל הַמְקַטְרְגִים." },
-            { topic: "ארץ-ישראל", letter: "יב", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לִשְׂרָרָה." },
-            { topic: "ארץ-ישראל", letter: "יג", text: "אֲוִירָא דְאֶרֶץ יִשְׂרָאֵל מַחְכִּים." },
-            { topic: "ארץ-ישראל", letter: "יד", text: "כָּל הַדָּר בְּאֶרֶץ יִשְׂרָאֵל, דּוֹמֶה כְּמִי שֶׁיֵּשׁ לוֹ אֱלוֹהַּ." },
-            { topic: "ארץ-ישראל", letter: "טו", text: "כָּל הַקָּבוּר בְּאֶרֶץ יִשְׂרָאֵל, כְּאִלּוּ קָבוּר תַּחַת הַמִּזְבֵּחַ." },
-            { topic: "ארץ-ישראל", letter: "טז", text: "אֶרֶץ יִשְׂרָאֵל נִקְנֵית בְּיִסּוּרִין." },
-            { topic: "ארץ-ישראל", letter: "יז", text: "הַקָּדוֹשׁ בָּרוּךְ הוּא עָתִיד לַעֲשׂוֹת אֶת יְרוּשָׁלַיִם כְּמוֹ אֶרֶץ יִשְׂרָאֵל." },
-            { topic: "ארץ-ישראל", letter: "יח", text: "אֶרֶץ יִשְׂרָאֵל אֵינָהּ נִמְסֶרֶת אֶלָּא לְמִי שֶׁמּוֹסֵר נַפְשׁוֹ עָלֶיהָ." },
-            { topic: "אבדה", letter: "א", text: "הַשָּׁבַת אֲבֵדָה הִיא מִצְוָה גְּדוֹלָה." },
-            { topic: "אבדה", letter: "ב", text: "עַל יְדֵי הַשָּׁבַת אֲבֵדָה נִצּוֹלִין מִגָּזֵל." },
-            { topic: "אבדה", letter: "ג", text: "הַמַּחֲזִיר אֲבֵדָה לִבְעָלֶיהָ, הַקָּדוֹשׁ בָּרוּךְ הוּא מַחֲזִיר לוֹ אֶת אֲבֵדָתוֹ." }
-            // ... המשך כל ספר המידות ...
-            // כאן צריכים להיות כל שאר הערכים והסעיפים מספר המידות.
-            // לדוגמה, אם תרצה להוסיף את שאר "ספר המידות", תצטרך להמשיך את הרשימה הזו
-            // עם כל נושא וכל סעיף, באותו פורמט.
-            // למשל:
-            // { topic: "בנים", letter: "א", text: "משפט ראשון על בנים..." },
-            // { topic: "בנים", letter: "ב", text: "משפט שני על בנים..." },
-            // וכן הלאה לכל הספר.
+            { topic: "אמת", letter: "י", text: "עַל יְדֵי אֱמֶת נִתְקַבְּלִין הַתְּפִלּוֹת." }
         ];
 
         // המשתנים הגלובליים
@@ -314,10 +253,15 @@
         const textElement = document.getElementById('current-text');
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
+        const bodyElement = document.body; // Get body element for fullscreen class
 
         // פונקציה לאכלוס תפריט הנושאים
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
+            // Clear existing options except for "all"
+            while (topicSelectElement.options.length > 1) {
+                topicSelectElement.remove(1);
+            }
             topics.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic;
@@ -335,7 +279,7 @@
                 return;
             }
 
-            if (current >= currentFilteredEntries.length) { // Safety check
+            if (current >= currentFilteredEntries.length) {
                 current = 0;
             }
             
@@ -352,11 +296,10 @@
                     topicElement.style.opacity = 1;
                     letterElement.style.opacity = 1;
                     textElement.style.opacity = 1;
-                }, 300); // Short delay for fade out effect
+                }, 300);
             }
         }
         
-        // פונקציה לטיפול בשינוי נושא
         function handleTopicChange() {
             currentSelectedTopic = topicSelectElement.value;
             if (currentSelectedTopic === "all") {
@@ -364,18 +307,15 @@
             } else {
                 currentFilteredEntries = entries.filter(entry => entry.topic === currentSelectedTopic);
             }
-            current = 0; // Reset to the first entry of the new selection
+            current = 0;
             updateDisplay();
-            resetInterval(); // Reset interval with new selection
+            resetInterval();
         }
 
-        // פונקציה למעבר למשפט הבא
         function nextSlide() {
             if (currentFilteredEntries.length === 0) return;
-
             if (isRandom) {
                 let next = current;
-                // Ensure a different entry is selected if possible
                 if (currentFilteredEntries.length > 1) {
                     do {
                         next = Math.floor(Math.random() * currentFilteredEntries.length);
@@ -388,33 +328,37 @@
             updateDisplay();
         }
 
-        // פונקציה למעבר למשפט הקודם
         function prevSlide() {
             if (currentFilteredEntries.length === 0) return;
             current = (current - 1 + currentFilteredEntries.length) % currentFilteredEntries.length;
             updateDisplay();
         }
 
-        // פונקציה לשינוי מצב אקראי/סדרתי
         function toggleRandom() {
             isRandom = !isRandom;
             randomToggleButton.textContent = isRandom ? "סדר: אקראי" : "סדר: רגיל";
         }
 
-        // פונקציה למסך מלא
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    // console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (bodyElement.requestFullscreen) {
+                    bodyElement.requestFullscreen().catch(err => console.log(err));
+                } else if (bodyElement.webkitRequestFullscreen) { /* Safari */
+                    bodyElement.webkitRequestFullscreen().catch(err => console.log(err));
+                } else if (bodyElement.msRequestFullscreen) { /* IE11 */
+                    bodyElement.msRequestFullscreen().catch(err => console.log(err));
+                }
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
                 }
             }
         }
         
-        // פונקציה לעדכון האינטרוול
         function updateInterval() {
             const select = document.getElementById("timing-select");
             duration = parseInt(select.value);
@@ -423,44 +367,36 @@
 
         function resetInterval() {
             clearInterval(intervalId);
-            if (currentFilteredEntries.length > 0) { // Only set interval if there are entries to show
+            if (currentFilteredEntries.length > 0) {
                  intervalId = setInterval(nextSlide, duration);
             }
         }
 
-
-        // אתחול
         document.addEventListener('DOMContentLoaded', () => {
-            populateTopicSelect(); // אכלוס תפריט הנושאים
-            // אתחול ראשוני של התצוגה והאינטרוול
+            populateTopicSelect();
             const initialDurationSelect = document.getElementById("timing-select");
             duration = parseInt(initialDurationSelect.value);
 
             if (entries.length > 0) {
-                 updateDisplay(); // הצג את המשפט הראשון
-                 intervalId = setInterval(nextSlide, duration); // התחל החלפה אוטומטית
+                 handleTopicChange(); // To initialize currentFilteredEntries correctly
+                 updateDisplay(); 
+                 intervalId = setInterval(nextSlide, duration);
             } else {
                 topicElement.textContent = "נא לטעון משפטים בספר המידות";
             }
 
             document.getElementById('prev-btn').addEventListener('click', () => {
                 prevSlide();
-                resetInterval(); // Reset interval on manual navigation
+                resetInterval();
             });
             document.getElementById('next-btn').addEventListener('click', () => {
                 nextSlide();
-                resetInterval(); // Reset interval on manual navigation
+                resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
-
-            document.addEventListener('fullscreenchange', () => {
-                const btn = document.querySelector('.fullscreen-btn');
-                if (document.fullscreenElement) {
-                    if (btn) btn.style.display = 'none'; // Hide button in fullscreen
-                } else {
-                    if (btn) btn.style.display = 'inline-block'; // Show button when not in fullscreen
-                }
-            });
+            
+            // Event listener for fullscreen change to toggle body class for CSS styling (not strictly needed with direct element hiding)
+            // However, the CSS :fullscreen pseudo-class is more robust.
         });
 
     </script>
