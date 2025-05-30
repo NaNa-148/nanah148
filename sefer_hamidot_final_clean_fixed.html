@@ -31,14 +31,11 @@
             box-sizing: border-box;
             z-index: 999;
             flex-wrap: wrap;
-            /* transition: opacity 0.3s ease-in-out; -- Removed for display:none */
         }
-        /* Hide top-bar completely in fullscreen */
-        body:fullscreen .top-bar,
-        body:-webkit-full-screen .top-bar,
-        body:-moz-full-screen .top-bar, /* Firefox */
-        body:-ms-fullscreen .top-bar {
-            display: none !important; /* Ensures it's completely hidden and takes no space */
+
+        /* *** CSS Rule for hiding top-bar when body has 'fullscreen-active' class *** */
+        body.fullscreen-active .top-bar {
+            display: none !important;
         }
 
         .controls-container {
@@ -67,9 +64,7 @@
             background: #1a2e4f;
             color: white;
         }
-        .fullscreen-btn {
-            /* Style is part of .control-element or .top-text */
-        }
+
         .content-display {
             max-width: 800px;
             width: 90%;
@@ -106,23 +101,23 @@
             z-index: 1001;
         }
 
-        .nanach-signature span { /* General style for animated parts */
+        .nanach-signature span {
             opacity: 0;
             animation: fadeIn依次 1s forwards;
         }
 
         .nanach-signature .s1 { color: white; animation-delay: 0.5s; }
-        .nanach-signature .s2 { color: #FFD700; /* Gold/Yellow */ animation-delay: 1.0s; margin-right: 0.7em; }
-        .nanach-signature .s3 { color: #FF7F50; /* Coral/Orange */ animation-delay: 1.5s; margin-right: 0.7em; }
-        .nanach-signature .s4 { color: #87CEEB; /* Sky Blue */ animation-delay: 2.0s; margin-right: 0.7em; }
+        .nanach-signature .s2 { color: #FFD700; animation-delay: 1.0s; margin-right: 0.7em; }
+        .nanach-signature .s3 { color: #FF7F50; animation-delay: 1.5s; margin-right: 0.7em; }
+        .nanach-signature .s4 { color: #87CEEB; animation-delay: 2.0s; margin-right: 0.7em; }
         .nanach-signature .s5 {
             animation-delay: 2.5s; margin-right: 0.7em;
         }
-        .nanach-signature .s5 .char1 { color: #FFDAB9; } /* Peach for מ */
-        .nanach-signature .s5 .char2 { color: #FFFF00; } /* Yellow for א */
-        .nanach-signature .s5 .char3 { color: #EE82EE; } /* Violet for ו */
-        .nanach-signature .s5 .char4 { color: #98FB98; } /* PaleGreen for מ */
-        .nanach-signature .s5 .char5 { color: #AFEEEE; } /* PaleTurquoise for ן */
+        .nanach-signature .s5 .char1 { color: #FFDAB9; }
+        .nanach-signature .s5 .char2 { color: #FFFF00; }
+        .nanach-signature .s5 .char3 { color: #EE82EE; }
+        .nanach-signature .s5 .char4 { color: #98FB98; }
+        .nanach-signature .s5 .char5 { color: #AFEEEE; }
 
         @keyframes fadeIn依次 {
             from { opacity: 0; transform: translateY(10px); }
@@ -130,11 +125,6 @@
         }
 
         @media (max-width: 600px) {
-            .top-bar {
-                /* This will also be hidden in fullscreen due to the general rule */
-                flex-direction: column;
-                align-items: center;
-            }
             .controls-container {
                 margin-top:10px;
                 justify-content: center;
@@ -144,8 +134,8 @@
             .text-display { font-size: calc(1.3em + 10px); }
             body { padding: 80px 5% 60px 5%; }
             .nanach-signature { font-size: 20px; bottom: 10px; right: 10px; }
+            /* top-bar will be hidden by the .fullscreen-active .top-bar rule */
         }
-
     </style>
 </head>
 <body>
@@ -200,7 +190,7 @@
     </div>
 
     <script>
-        const entries = [ // Only first 10 of "אמת" for testing
+        const entries = [
             { topic: "אמת", letter: "א", text: "הַבּוֹרֵחַ מִן הַכָּבוֹד, הַכָּבוֹד רוֹדֵף אַחֲרָיו. וְהָרוֹדֵף אַחַר הַכָּבוֹד, הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ. וְכָל שֶׁכֵּן מִי שֶׁמַּשִּׂיג גְּבוּל חֲבֵרוֹ לְהִתְכַּבֵּד בִּכְבוֹדוֹ, שֶׁאָז בְּוַדַּאי הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ." },
             { topic: "אמת", letter: "ב", text: "עַל יְדֵי אֱמֶת דְּקִדּוּשָׁה בָּא עַל יְדֵי זֶה שֶׁמֶץ מִנְהוּ דְּקִדּוּשָׁה." },
             { topic: "אמת", letter: "ג", text: "עַל יְדֵי אֱמֶת נַעֲשֶׂה שָׁלוֹם." },
@@ -225,7 +215,7 @@
         const textElement = document.getElementById('current-text');
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
-        // const topBarElement = document.querySelector('.top-bar'); // Not strictly needed if CSS handles all
+        const bodyElement = document.body; // Variable for body element
 
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
@@ -303,15 +293,15 @@
         }
 
         function toggleFullScreen() {
+            const elem = document.documentElement;
             if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-                const elem = document.documentElement;
                 if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(err => console.log("Error attempting to enable full-screen mode:", err.message, err.name));
-                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.requestFullscreen().catch(err => console.log("Fullscreen error:", err.message));
+                } else if (elem.mozRequestFullScreen) { 
                     elem.mozRequestFullScreen();
-                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                } else if (elem.webkitRequestFullscreen) { 
+                    elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                } else if (elem.msRequestFullscreen) { 
                     elem.msRequestFullscreen();
                 }
             } else {
@@ -327,6 +317,15 @@
             }
         }
         
+        function onFullscreenChange() {
+            const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement;
+            if (isFullscreen) {
+                bodyElement.classList.add('fullscreen-active');
+            } else {
+                bodyElement.classList.remove('fullscreen-active');
+            }
+        }
+
         function updateInterval() {
             const select = document.getElementById("timing-select");
             duration = parseInt(select.value);
@@ -361,6 +360,11 @@
                 resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
+
+            document.addEventListener('fullscreenchange', onFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+            document.addEventListener('mozfullscreenchange', onFullscreenChange);
+            document.addEventListener('MSFullscreenChange', onFullscreenChange);
         });
 
     </script>
