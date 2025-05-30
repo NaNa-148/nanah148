@@ -31,15 +31,14 @@
             box-sizing: border-box;
             z-index: 999;
             flex-wrap: wrap;
-            transition: opacity 0.3s ease-in-out; /* Added for smooth hide/show */
+            /* transition: opacity 0.3s ease-in-out; -- Removed for display:none */
         }
-        /* Hide top-bar in fullscreen */
+        /* Hide top-bar completely in fullscreen */
         body:fullscreen .top-bar,
-        body:-webkit-full-screen .top-bar, /* Safari, Chrome */
+        body:-webkit-full-screen .top-bar,
         body:-moz-full-screen .top-bar, /* Firefox */
-        body:-ms-fullscreen .top-bar { /* IE/Edge */
-            opacity: 0;
-            pointer-events: none; /* Make it non-interactive when hidden */
+        body:-ms-fullscreen .top-bar {
+            display: none !important; /* Ensures it's completely hidden and takes no space */
         }
 
         .controls-container {
@@ -101,7 +100,6 @@
             right: 15px;
             font-size: 24px;
             font-weight: bold;
-            /* color: rgba(255, 255, 255, 0.85); */ /* Will be overridden by individual spans */
             display: flex;
             white-space: nowrap;
             font-family: 'David Libre', 'Narkis Block', serif;
@@ -113,24 +111,18 @@
             animation: fadeIn依次 1s forwards;
         }
 
-        /* Specific colors for Na Nach signature parts based on image */
         .nanach-signature .s1 { color: white; animation-delay: 0.5s; }
         .nanach-signature .s2 { color: #FFD700; /* Gold/Yellow */ animation-delay: 1.0s; margin-right: 0.7em; }
         .nanach-signature .s3 { color: #FF7F50; /* Coral/Orange */ animation-delay: 1.5s; margin-right: 0.7em; }
         .nanach-signature .s4 { color: #87CEEB; /* Sky Blue */ animation-delay: 2.0s; margin-right: 0.7em; }
-        .nanach-signature .s5 { /* For "מאומן" - will be overridden by inner spans if used */
+        .nanach-signature .s5 {
             animation-delay: 2.5s; margin-right: 0.7em;
-            /* If "מאומן" is a single color, apply it here. Otherwise, use inner spans. */
-            /* Example for single color for מאומן: color: #90EE90; /* Light Green */
         }
-
-        /* For individual letter coloring within "מאומן" (if s5 is structured with inner spans) */
         .nanach-signature .s5 .char1 { color: #FFDAB9; } /* Peach for מ */
         .nanach-signature .s5 .char2 { color: #FFFF00; } /* Yellow for א */
         .nanach-signature .s5 .char3 { color: #EE82EE; } /* Violet for ו */
         .nanach-signature .s5 .char4 { color: #98FB98; } /* PaleGreen for מ */
         .nanach-signature .s5 .char5 { color: #AFEEEE; } /* PaleTurquoise for ן */
-
 
         @keyframes fadeIn依次 {
             from { opacity: 0; transform: translateY(10px); }
@@ -139,6 +131,7 @@
 
         @media (max-width: 600px) {
             .top-bar {
+                /* This will also be hidden in fullscreen due to the general rule */
                 flex-direction: column;
                 align-items: center;
             }
@@ -207,7 +200,7 @@
     </div>
 
     <script>
-        const entries = [
+        const entries = [ // Only first 10 of "אמת" for testing
             { topic: "אמת", letter: "א", text: "הַבּוֹרֵחַ מִן הַכָּבוֹד, הַכָּבוֹד רוֹדֵף אַחֲרָיו. וְהָרוֹדֵף אַחַר הַכָּבוֹד, הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ. וְכָל שֶׁכֵּן מִי שֶׁמַּשִּׂיג גְּבוּל חֲבֵרוֹ לְהִתְכַּבֵּד בִּכְבוֹדוֹ, שֶׁאָז בְּוַדַּאי הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ." },
             { topic: "אמת", letter: "ב", text: "עַל יְדֵי אֱמֶת דְּקִדּוּשָׁה בָּא עַל יְדֵי זֶה שֶׁמֶץ מִנְהוּ דְּקִדּוּשָׁה." },
             { topic: "אמת", letter: "ג", text: "עַל יְדֵי אֱמֶת נַעֲשֶׂה שָׁלוֹם." },
@@ -232,7 +225,7 @@
         const textElement = document.getElementById('current-text');
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
-        const topBarElement = document.querySelector('.top-bar'); // For fullscreen handling
+        // const topBarElement = document.querySelector('.top-bar'); // Not strictly needed if CSS handles all
 
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
@@ -313,7 +306,7 @@
             if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
                 const elem = document.documentElement;
                 if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
+                    elem.requestFullscreen().catch(err => console.log("Error attempting to enable full-screen mode:", err.message, err.name));
                 } else if (elem.mozRequestFullScreen) { /* Firefox */
                     elem.mozRequestFullScreen();
                 } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
@@ -368,8 +361,6 @@
                 resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
-
-            // No need for the JS part that hides the fullscreen button, CSS handles top-bar.
         });
 
     </script>
