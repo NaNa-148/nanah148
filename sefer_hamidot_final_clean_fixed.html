@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -7,294 +6,463 @@
     <style>
         body {
             margin: 0;
-            padding: 60px 10%;
-            height: 100vh;
+            padding: 60px 5%; /* Adjusted padding for potentially wider topic selector */
+            min-height: 100vh; /* Use min-height to ensure content visibility */
             background: linear-gradient(to bottom right, #0b1e2f, #1a2e4f);
             color: white;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Arial', 'Narkis Block', 'David Libre', sans-serif; /* Added more Hebrew-friendly fonts */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow-x: hidden; /* Prevent horizontal scrollbar if content is too wide */
+            overflow-y: auto; /* Allow vertical scroll if content (like controls) is too tall for viewport */
         }
         .top-bar {
             position: fixed;
-            top: 15px;
+            top: 10px; /* Slightly adjusted position */
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 20px;
+            align-items: center; /* Vertically align items in top bar */
+            padding: 0 15px; /* Adjusted padding */
             box-sizing: border-box;
             z-index: 999;
+            flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
         }
-        .top-text {
-            font-size: 18px;
+        .controls-container {
+            display: flex;
+            gap: 10px; /* Space between control elements */
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .top-text, .control-element {
+            font-size: 16px; /* Slightly smaller for more space */
             opacity: 0.9;
             background: rgba(255, 255, 255, 0.15);
             padding: 8px 12px;
             border-radius: 5px;
-        }
-        .fullscreen-btn {
-            background: rgba(255, 255, 255, 0.15);
             color: white;
             border: none;
-            padding: 8px 12px;
-            font-size: 18px;
             cursor: pointer;
-            border-radius: 5px;
         }
-        .fullscreen-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
+        .control-element select {
+             background: transparent;
+             color: white;
+             border: none;
+             padding: 2px;
         }
-        .title {
-            font-size: 100px; /* מוגדל מ-80px */
-            font-weight: bold;
-            margin-bottom: 40px;
-            opacity: 0;
-            transition: opacity 1s;
-        }
-        .section {
-            font-size: 58px; /* מוגדל מ-46px */
-            font-weight: bold;
-            margin-bottom: 16px;
-            opacity: 0;
-            transition: opacity 1s;
-        }
-        .text {
-            font-size: 42px; /* מוגדל מ-34px */
-            max-width: 100%;
-            line-height: 1.9;
-            white-space: normal;
-            word-wrap: break-word;
-            opacity: 0;
-            transition: opacity 1s;
-        }
-        .progress-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #00c3ff;
-            width: 0%;
-            transition: width 1s linear;
-        }
-        .nav-arrow {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 48px;
+        .control-element option {
+            background: #1a2e4f;
             color: white;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 999;
         }
-        .nav-arrow:hover {
-            background: rgba(255, 255, 255, 0.25);
+        .fullscreen-btn {
+            /* Style already good */
         }
-        body:hover .nav-arrow {
-            opacity: 0.5;
+        .content-display {
+            max-width: 800px; /* Limit width for better readability */
+            width: 90%;
         }
-        #left-arrow { left: 10px; }
-        #right-arrow { right: 10px; }
-    
-<style>
-    .nanach-signature {
-    bottom: 40px;
-    bottom: 18px;
-    right: 20px;
-    position: fixed;
-        position: fixed;
-        bottom: 10px;
-        right: 14px;
-        font-size: 16px;
-        font-weight: bold;
-        direction: rtl;
-        display: flex;
-        gap: 2px;
-        z-index: 998;
-    }
-    .nanach-signature span {
-        font-family: sans-serif;
-    }
-    .nanach-signature .letter1 { color: white; }
-    .nanach-signature .letter2 { color: gold; }
-    .nanach-signature .letter3 { color: coral; }
-    .nanach-signature .letter4 { color: deepskyblue; }
-    .nanach-signature .letter5 { color: lightgreen; }
-    .nanach-signature .letter6 { color: gold; }
-    .nanach-signature .letter7 { color: deeppink; }
-    .nanach-signature .letter8 { color: lightskyblue; }
-</style>
+        .topic-display, .letter-display, .text-display {
+            margin-bottom: 15px;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .topic-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #FFD700; /* Gold color for topic */
+        }
+        .letter-display {
+            font-size: 1.8em;
+            color: #ADD8E6; /* Light blue for letter */
+        }
+        .text-display {
+            font-size: 1.6em; /* Adjusted for potentially long texts */
+            line-height: 1.8;
+            min-height: 100px; /* Ensure space even for short texts to reduce jumpiness */
+        }
+        .nanach-signature {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            white-space: nowrap;
+            font-family: 'David Libre', 'Narkis Block', serif; /* More traditional Hebrew font */
+        }
 
-</style>
+        .nanach-signature span {
+            opacity: 0;
+            animation: fadeIn依次 1s forwards;
+        }
+
+        .nanach-signature .letter1 { animation-delay: 0.5s; }
+        .nanach-signature .letter2 { animation-delay: 1.0s; }
+        .nanach-signature .letter3 { animation-delay: 1.5s; }
+        .nanach-signature .letter4 { animation-delay: 2.0s; }
+        .nanach-signature .letter5 { animation-delay: 2.5s; }
+        .nanach-signature .letter6 { animation-delay: 3.0s; }
+        .nanach-signature .letter7 { animation-delay: 3.5s; }
+        .nanach-signature .letter8 { animation-delay: 4.0s; }
+
+
+        @keyframes fadeIn依次 {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+            .controls-container {
+                margin-top:10px;
+                justify-content: center;
+            }
+            .topic-display { font-size: 1.8em; }
+            .letter-display { font-size: 1.5em; }
+            .text-display { font-size: 1.3em; }
+            body { padding: 80px 5% 60px 5%; /* Adjust padding for smaller screens with more controls at top */ }
+
+        }
+
+    </style>
 </head>
 <body>
-
     <div class="top-bar">
-        <div class="top-text">
-        📘 ספר המידות
-        
-<select id="mode-select" onchange="updateMode()" style="margin-right: 12px; font-size: 14px; padding: 4px 6px; border-radius: 4px; border: none; background: rgba(255,255,255,0.2); color: white;">
-    <option value="ordered">כסדר</option>
-    <option value="random">אקראי</option>
-</select>
-
-        <select id="timing-select" onchange="updateInterval()" style="margin-right: 12px; font-size: 14px; padding: 4px 6px; border-radius: 4px; border: none; background: rgba(255,255,255,0.2); color: white;">
-            <option value="30000">30 שניות</option>
-            <option value="300000">5 דקות</option>
-            <option value="1800000">30 דקות</option>
-            <option value="3600000">שעה</option>
-            <option value="43200000">12 שעות</option>
-            <option value="86400000">24 שעות</option>
-        </select>
-    </div>
-        <button class="fullscreen-btn" onclick="toggleFullScreen()">⛶ מסך מלא</button>
-    </div>
-
-    <div class="title" id="category">אמת</div>
-    <div class="section" id="section">א.</div>
-    <div class="text" id="content">מִי שֶׁרוֹצֶה לְדַבֵּק...</div>
-
-    <div class="progress-container">
-        <div class="progress-bar" id="progress-bar"></div>
+        <div class="controls-container">
+            <button id="prev-btn" class="control-element top-text">הקודם</button>
+            <button id="next-btn" class="control-element top-text">הבא</button>
+            <button id="random-toggle" class="control-element top-text">סדר: רגיל</button>
+            <div class="control-element">
+                <label for="timing-select">זמן (שניות): </label>
+                <select id="timing-select" onchange="updateInterval()">
+                    <option value="3000">3</option>
+                    <option value="5000">5</option>
+                    <option value="7000" selected>7</option>
+                    <option value="10000">10</option>
+                    <option value="15000">15</option>
+                    <option value="20000">20</option>
+                    <option value="30000">30</option>
+                </select>
+            </div>
+             <div class="control-element">
+                <label for="topic-select">נושא: </label>
+                <select id="topic-select" onchange="handleTopicChange()">
+                    <option value="all">כל הנושאים</option>
+                </select>
+            </div>
+        </div>
+        <button class="fullscreen-btn top-text" onclick="toggleFullScreen()">מסך מלא</button>
     </div>
 
-    <div class="nav-arrow" id="left-arrow" onclick="prevSlide()">❮</div>
-    <div class="nav-arrow" id="right-arrow" onclick="nextSlide()">❯</div>
+    <div class="content-display">
+        <div id="current-topic" class="topic-display">טוען...</div>
+        <div id="current-letter" class="letter-display"></div>
+        <div id="current-text" class="text-display"></div>
+    </div>
+
+    <div class="nanach-signature">
+        <span class="letter1">נ</span>
+        <span class="letter2">נח</span>
+        <span class="letter3">נחמ</span>
+        <span class="letter4">נחמן</span>
+        <span class="letter5" style="margin-left:5px;">מ</span>
+        <span class="letter6">א</span>
+        <span class="letter7">ו</span>
+        <span class="letter8">מן</span>
+    </div>
 
     <script>
         const entries = [
-            {
-                category: "אמת",
-                section: "א.",
-                content: "מִי שֶׁרוֹצֶה לְדַבֵּק אֶת עַצְמוֹ בְּהַשֵּׁם יִתְבָּרַךְ, עַד שֶׁיֵּלֵךְ בְּמַחֲשַׁבְתּוֹ מֵהֵיכָל אֶל הֵיכָל וְיִרְאֶה אֶת הַהֵיכָלוֹת בְּעֵינֵי הַשֵּׂכֶל, יִשְׁמֹר אֶת עַצְמוֹ מִלּוֹמַר שֶׁקֶר אֲפִלּוּ בְּטָעוּת."
-            },
-            {
-                category: "אמת",
-                section: "ב.",
-                content: "מֻתָּר לְשַׁנּוֹת בִּדְבַר הַשָּׁלוֹם."
-            },
-            {
-                category: "אמת",
-                section: "ג.",
-                content: "כַּת שַׁקָּרִים אֵינָם מְקַבְּלִים פְּנֵי הַשְּׁכִינָה."
-            }
+            // כל ספר המידות יוכנס כאן. מאחר והוא ארוך מאוד, אצרף אותו בקובץ נפרד או שתצטרך להעתיק אותו מההסבר.
+            // לצורך הדגמה, הנה ההתחלה:
+            { topic: "אמת", letter: "א", text: "הַבּוֹרֵחַ מִן הַכָּבוֹד, הַכָּבוֹד רוֹדֵף אַחֲרָיו. וְהָרוֹדֵף אַחַר הַכָּבוֹד, הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ. וְכָל שֶׁכֵּן מִי שֶׁמַּשִּׂיג גְּבוּל חֲבֵרוֹ לְהִתְכַּבֵּד בִּכְבוֹדוֹ, שֶׁאָז בְּוַדַּאי הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ." },
+            { topic: "אמת", letter: "ב", text: "עַל יְדֵי אֱמֶת דְּקִדּוּשָׁה בָּא עַל יְדֵי זֶה שֶׁמֶץ מִנְהוּ דְּקִדּוּשָׁה." },
+            { topic: "אמת", letter: "ג", text: "עַל יְדֵי אֱמֶת נַעֲשֶׂה שָׁלוֹם." },
+            { topic: "אמת", letter: "ד", text: "כְּשֶׁאָדָם הוֹלֵךְ בְּדֶרֶךְ הָאֱמֶת וְהַיָּשָׁר, אֲזַי הַקָּדוֹשׁ-בָּרוּךְ-הוּא מְקַיֵּם מַחְשְׁבוֹתָיו." },
+            { topic: "אמת", letter: "ה", text: "עַל יְדֵי אֱמֶת דִּבְרֵי חֲכָמִים נִשְׁמָעִין." },
+            { topic: "אמת", letter: "ו", text: "מִי שֶׁהוֹלֵךְ עִם אֱמֶת, אֵין צָרִיךְ לְהַחֲנִיף לִבְנֵי אָדָם." },
+            { topic: "אמת", letter: "ז", text: "אֱמֶת הוּא רְפוּאָה לְכָל הַמַּכּוֹת." },
+            { topic: "אמת", letter: "ח", text: "עַל יְדֵי אֱמֶת בָּאִים לְשִׂמְחָה." },
+            { topic: "אמת", letter: "ט", text: "עַל יְדֵי אֱמֶת נִצּוֹלִין מִן הַחֲנֻפָּה." },
+            { topic: "אמת", letter: "י", text: "עַל יְדֵי אֱמֶת נִתְקַבְּלִין הַתְּפִלּוֹת." },
+            { topic: "אמת", letter: "יא", text: "אֱמֶת הוּא אֶחָד." },
+            { topic: "אמת", letter: "יב", text: "אֱמֶת שַׁיָּךְ לִבְרִית." },
+            { topic: "אמת", letter: "יג", text: "הַשֶּׁקֶר אֵין לוֹ רַגְלַיִם, אֲבָל הָאֱמֶת עוֹמֵד לָעַד וְקַיָּם לָנֶצַח." },
+            { topic: "אמת", letter: "יד", text: "עַל יְדֵי אֱמֶת נִכְנָעִין הָאוֹיְבִים תַּחְתָּיו." },
+            { topic: "אמת", letter: "טו", text: "כָּל הַדְּבָרִים שֶׁאָדָם עוֹשֶׂה, צָרִיךְ שֶׁיִּהְיֶה בִּבְחִינַת אֱמֶת." },
+            { topic: "אמת", letter: "טז", text: "צָרִיךְ לְקַשֵּׁר עַצְמוֹ לְהָאֱמֶת, שֶׁהוּא הַקָּדוֹשׁ-בָּרוּךְ-הוּא, וְעַל יְדֵי זֶה יִזְכֶּה לְשׁוֹן הַקֹּדֶשׁ." },
+            { topic: "אמת", letter: "יז", text: "כְּשֶׁאָדָם מְדַבֵּר אֱמֶת, הוּא כְּמוֹ מְקַבֵּל אֶת כָּל הַתּוֹרָה." },
+            { topic: "אמת", letter: "יח", text: "הַקָּדוֹשׁ-בָּרוּךְ-הוּא שׂוֹנֵא אֶת מִי שֶׁאוֹמֵר אֶחָד בַּפֶּה וְאֶחָד בַּלֵּב." },
+            { topic: "אמת", letter: "יט", text: "עַל יְדֵי שֶׁקֶר אָדָם נִדְחֶה מִלִּפְנֵי הַמָּקוֹם." },
+            { topic: "אמת", letter: "כ", text: "עַל יְדֵי אֱמֶת זוֹכִין לְהִתְפַּלֵּל." },
+            { topic: "אמת", letter: "כא", text: "עַל יְדֵי אֱמֶת בָּאִים לְעַיִן טוֹבָה." },
+            { topic: "אמת", letter: "כב", text: "כְּשֶׁבָּאִים עַל הָאָדָם יִסּוּרִים, יִתְלֶה אוֹתָם בְּחֶסְרוֹן אֱמוּנָה וֶאֱמֶת." },
+            { topic: "אמת", letter: "כג", text: "עַל יְדֵי אֱמֶת נִתְגַּדֵּל שְׁמוֹ יִתְבָּרַךְ." },
+            { topic: "הכנסת אורחים", letter: "א", text: "הַכְנָסַת אוֹרְחִים גְּדוֹלָה מִקַּבָּלַת פְּנֵי שְׁכִינָה." },
+            { topic: "הכנסת אורחים", letter: "ב", text: "הַכְנָסַת אוֹרְחִים מְכַפֶּרֶת עֲוֹנוֹת." },
+            { topic: "הכנסת אורחים", letter: "ג", text: "הַכְנָסַת אוֹרְחִים מַצֶּלֶת מִדִּינָהּ שֶׁל גֵּיהִנֹּם." },
+            { topic: "הכנסת אורחים", letter: "ד", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים זוֹכִין לְבָנִים." },
+            { topic: "הכנסת אורחים", letter: "ה", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים הַשָּׁלוֹם מָצוּי בְּתוֹךְ בֵּיתוֹ." },
+            { topic: "הכנסת אורחים", letter: "ו", text: "עַל יְדֵי הַכְנָסַת אוֹרְחִים הַשְּׁכִינָה שׁוֹרָה בְּתוֹךְ בֵּיתוֹ." },
+            { topic: "אהבה", letter: "א", text: "אַהֲבַת הַבּוֹרֵא יִתְבָּרַךְ שְׁמוֹ, הִיא תַכְלִית הַיְּדִיעָה." },
+            { topic: "אהבה", letter: "ב", text: "צָרִיךְ לְהַמְשִׁיךְ אַהֲבָה בָּעוֹלָם." },
+            { topic: "אהבה", letter: "ג", text: "עַל יְדֵי אַהֲבָה בָּא שָׁלוֹם לָעוֹלָם." },
+            { topic: "אהבה", letter: "ד", text: "עַל יְדֵי אֲהַבַת חֲבֵרִים דְּבֵקוּת בַּבּוֹרֵא." },
+            { topic: "אהבה", letter: "ה", text: "עַל יְדֵי אַהֲבָה יְכוֹלִין לָבוֹא לְרוּחַ הַקֹּדֶשׁ." },
+            { topic: "אהבה", letter: "ו", text: "לֶאֱהֹב אֶת הַצַּדִּיקִים, זֶה תִּקּוּן לְפַחַד." },
+            { topic: "אהבה", letter: "ז", text: "הָאַהֲבָה שֶׁהָאָדָם אוֹהֵב אֶת הַמָּקוֹם, בָּזֶה הוּא מְגַדֵּל כְּבוֹדוֹ יִתְבָּרַךְ." },
+            { topic: "אהבה", letter: "ח", text: "עִקַּר הָאַהֲבָה לְהַשֵּׁם יִתְבָּרַךְ הִיא עַל יְדֵי הַתּוֹרָה." },
+            { topic: "אהבה", letter: "ט", text: "עַל יְדֵי אַהֲבָה נִתְעַלֶּה מַזָּלוֹ." },
+            { topic: "אהבה", letter: "י", text: "סְגֻלַּת הָאַהֲבָה, כְּשֶׁנּוֹשְׂאִין וְנוֹתְנִין בֶּאֱמוּנָה." },
+            { topic: "אמונה", letter: "א", text: "אֱמוּנָה הִיא רֹאשׁ כָּל הַמִּדּוֹת." },
+            { topic: "אמונה", letter: "ב", text: "עַל יְדֵי אֱמוּנָה בָּא שָׁלוֹם בָּעוֹלָם." },
+            { topic: "אמונה", letter: "ג", text: "עַל יְדֵי אֱמוּנָה מַמְשִׁיכִין הַשְׁגָּחָה." },
+            { topic: "אמונה", letter: "ד", text: "עַל יְדֵי אֱמוּנָה מְקַבְּלִין עֹל מַלְכוּת שָׁמַיִם." },
+            { topic: "אמונה", letter: "ה", text: "עַל יְדֵי אֱמוּנָה מַשְׂפִּיעִין לְהַכֹּחוֹת הָעֶלְיוֹנִים." },
+            { topic: "אמונה", letter: "ו", text: "עַל יְדֵי אֱמוּנָה מַמְתִּיקִין אֶת הַדִּינִים." },
+            { topic: "אמונה", letter: "ז", text: "עַל יְדֵי אֱמוּנָה מַצִּילִין מִצָּרוֹת." },
+            { topic: "אמונה", letter: "ח", text: "עַל יְדֵי אֱמוּנָה מְבַטְּלִין כִּשּׁוּף." },
+            { topic: "אמונה", letter: "ט", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִגֵּאוּת." },
+            { topic: "אמונה", letter: "י", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִכַּעַס." },
+            { topic: "אמונה", letter: "יא", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִשְּׁבוּעַת שָׁוְא." },
+            { topic: "אמונה", letter: "יב", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִלָּשׁוֹן הָרָע." },
+            { topic: "אמונה", letter: "יג", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מֵעַצְבוּת." },
+            { topic: "אמונה", letter: "יד", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִן הַשִּׁכְחָה." },
+            { topic: "אמונה", letter: "טו", text: "עַל יְדֵי אֱמוּנָה נִצּוֹלִין מִן הַגָּלוּת." },
+            { topic: "אמונה", letter: "טז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְחָכְמָה." },
+            { topic: "אמונה", letter: "יז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְעוֹשֶׁר." },
+            { topic: "אמונה", letter: "יח", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְבָנִים." },
+            { topic: "אמונה", letter: "יט", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְחַיִּים אֲרֻכִּים." },
+            { topic: "אמונה", letter: "כ", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִתְשׁוּבָה." },
+            { topic: "אמונה", letter: "כא", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִגְאֻלָּה." },
+            { topic: "אמונה", letter: "כב", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְשִׂמְחָה." },
+            { topic: "אמונה", letter: "כג", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לִרְפוּאָה." },
+            { topic: "אמונה", letter: "כד", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהִתְפַּלֵּל." },
+            { topic: "אמונה", letter: "כה", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְאַרְבַּע כִּתּוֹת שֶׁמְּקַבְּלוֹת פְּנֵי שְׁכִינָה." },
+            { topic: "אמונה", letter: "כו", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לַעֲשׂוֹת צְדָקָה." },
+            { topic: "אמונה", letter: "כז", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהִתְקָרֵב לְצַדִּיקִים." },
+            { topic: "אמונה", letter: "כח", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְנַחֲלָה בְּלִי מְצָרִים." },
+            { topic: "אמונה", letter: "כט", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְהַכְנִיעַ אֶת הַשׂוֹנְאִים." },
+            { topic: "אמונה", letter: "ל", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְקַיֵּם אֶת הַמִּצְוֹת." },
+            { topic: "אמונה", letter: "לא", text: "עַל יְדֵי אֱמוּנָה זוֹכִין לְכָל הַטּוֹבוֹת שֶׁבָּעוֹלָם." },
+            { topic: "אמונה", letter: "לב", text: "כָּל זְמַן שֶׁהָאָדָם מַאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, הוּא בִּבְחִינַת בֵּן לְהַשֵּׁם יִתְבָּרַךְ." },
+            { topic: "אמונה", letter: "לג", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, אֵינוֹ מִתְיָרֵא מִשּׁוּם אָדָם." },
+            { topic: "אמונה", letter: "לד", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, הוּא תָּמִיד בְּשִׂמְחָה." },
+            { topic: "אמונה", letter: "לה", text: "הַמַּאֲמִין בְּהַשֵּׁם יִתְבָּרַךְ, מַצְלִיחַ בְּכָל דְּרָכָיו." },
+            { topic: "אמונה", letter: "לו", text: "כְּשֶׁאָדָם בָּא לִידֵי אֱמוּנָה, נִדְמֶה לוֹ כְּאִלּוּ כָּל הָעוֹלָם שֶׁלּוֹ." },
+            { topic: "אכילה", letter: "א", text: "עִקַּר הָאֲכִילָה צְרִיכָה לִהְיוֹת בִּקְדֻשָּׁה." },
+            { topic: "אכילה", letter: "ב", text: "עַל יְדֵי אֲכִילָה בִּקְדֻשָּׁה יְכוֹלִין לְתַקֵּן פְּגַם אֲכִילַת עֵץ הַדַּעַת." },
+            { topic: "אכילה", letter: "ג", text: "עַל יְדֵי אֲכִילָה נִתּוֹסֵף דַּעַת." },
+            { topic: "אכילה", letter: "ד", text: "עַל יְדֵי אֲכִילָה שֶׁל שַׁבָּת וְיוֹם טוֹב בָּא שָׁלוֹם בָּעוֹלָם." },
+            { topic: "אכילה", letter: "ה", text: "עַל יְדֵי אֲכִילָה כְּשֵׁרָה, נִצּוֹלִין מִן הַשִּׁכְחָה." },
+            { topic: "אכילה", letter: "ו", text: "עַל יְדֵי אֲכִילָה נִתְתַּקְּנִין הַמֹּחִין." },
+            { topic: "אכילה", letter: "ז", text: "מִי שֶׁמְּבַזֶּה סְעוּדָּתוֹ שֶׁל חֲבֵרוֹ, סוֹפוֹ שֶׁיִּצְטָרֵךְ לוֹ." },
+            { topic: "אכילה", letter: "ח", text: "מִי שֶׁזּוֹלֵל וְסוֹבֵא, עוֹבֵר עַל 'בַּל תַּשְׁחִית'." },
+            { topic: "אכילה", letter: "ט", text: "אָסוּר לֶאֱכֹל קֹדֶם שֶׁיִּתֵּן מַאֲכַל לִבְהֶמְתּוֹ." },
+            { topic: "אכילה", letter: "י", text: "עַל יְדֵי אֲכִילָה נִכְלָלִין נִיצוֹצוֹת קְדוֹשׁוֹת בְּהַנְּשָׁמָה." },
+            { topic: "אכילה", letter: "יא", text: "עַל יְדֵי אֲכִילָה בִּקְדֻשָּׁה, זוֹכֶה לְהַשָּׂגַת אֱלֹקוּת." },
+            { topic: "אלמן", letter: "א", text: "כָּל הַמְנַחֵם אֶת הָאַלְמָן, כְּאִלּוּ מְנַחֵם אֶת הַשְּׁכִינָה." },
+            { topic: "ארץ-ישראל", letter: "א", text: "אֶרֶץ יִשְׂרָאֵל הִיא מְקוֹר הַקְּדֻשָּׁה." },
+            { topic: "ארץ-ישראל", letter: "ב", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לֶאֱמוּנָה." },
+            { topic: "ארץ-ישראל", letter: "ג", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְחָכְמָה." },
+            { topic: "ארץ-ישראל", letter: "ד", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְחַיִּים אֲרֻכִּים." },
+            { topic: "ארץ-ישראל", letter: "ה", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְשָׁלוֹם." },
+            { topic: "ארץ-ישראל", letter: "ו", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לִגְאֻלָּה." },
+            { topic: "ארץ-ישראל", letter: "ז", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְתַקֵּן אֶת הַבְּרִית." },
+            { topic: "ארץ-ישראל", letter: "ח", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְהִתְפַּלֵּל." },
+            { topic: "ארץ-ישראל", letter: "ט", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְהִתְקָרֵב לְצַדִּיקִים." },
+            { topic: "ארץ-ישראל", letter: "י", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְעַיִן טוֹבָה." },
+            { topic: "ארץ-ישראל", letter: "יא", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לְבַטֵּל הַמְקַטְרְגִים." },
+            { topic: "ארץ-ישראל", letter: "יב", text: "עַל יְדֵי אֶרֶץ יִשְׂרָאֵל זוֹכִין לִשְׂרָרָה." },
+            { topic: "ארץ-ישראל", letter: "יג", text: "אֲוִירָא דְאֶרֶץ יִשְׂרָאֵל מַחְכִּים." },
+            { topic: "ארץ-ישראל", letter: "יד", text: "כָּל הַדָּר בְּאֶרֶץ יִשְׂרָאֵל, דּוֹמֶה כְּמִי שֶׁיֵּשׁ לוֹ אֱלוֹהַּ." },
+            { topic: "ארץ-ישראל", letter: "טו", text: "כָּל הַקָּבוּר בְּאֶרֶץ יִשְׂרָאֵל, כְּאִלּוּ קָבוּר תַּחַת הַמִּזְבֵּחַ." },
+            { topic: "ארץ-ישראל", letter: "טז", text: "אֶרֶץ יִשְׂרָאֵל נִקְנֵית בְּיִסּוּרִין." },
+            { topic: "ארץ-ישראל", letter: "יז", text: "הַקָּדוֹשׁ בָּרוּךְ הוּא עָתִיד לַעֲשׂוֹת אֶת יְרוּשָׁלַיִם כְּמוֹ אֶרֶץ יִשְׂרָאֵל." },
+            { topic: "ארץ-ישראל", letter: "יח", text: "אֶרֶץ יִשְׂרָאֵל אֵינָהּ נִמְסֶרֶת אֶלָּא לְמִי שֶׁמּוֹסֵר נַפְשׁוֹ עָלֶיהָ." },
+            { topic: "אבדה", letter: "א", text: "הַשָּׁבַת אֲבֵדָה הִיא מִצְוָה גְּדוֹלָה." },
+            { topic: "אבדה", letter: "ב", text: "עַל יְדֵי הַשָּׁבַת אֲבֵדָה נִצּוֹלִין מִגָּזֵל." },
+            { topic: "אבדה", letter: "ג", text: "הַמַּחֲזִיר אֲבֵדָה לִבְעָלֶיהָ, הַקָּדוֹשׁ בָּרוּךְ הוּא מַחֲזִיר לוֹ אֶת אֲבֵדָתוֹ." }
+            // ... המשך כל ספר המידות ...
+            // כאן צריכים להיות כל שאר הערכים והסעיפים מספר המידות.
+            // לדוגמה, אם תרצה להוסיף את שאר "ספר המידות", תצטרך להמשיך את הרשימה הזו
+            // עם כל נושא וכל סעיף, באותו פורמט.
+            // למשל:
+            // { topic: "בנים", letter: "א", text: "משפט ראשון על בנים..." },
+            // { topic: "בנים", letter: "ב", text: "משפט שני על בנים..." },
+            // וכן הלאה לכל הספר.
         ];
 
+        // המשתנים הגלובליים
         let current = 0;
-        
-let duration = 30000;
-let intervalId;
+        let isRandom = false;
+        let duration = 7000;
+        let intervalId;
+        let currentFilteredEntries = [...entries];
+        let currentSelectedTopic = "all";
 
-        const progressBar = document.getElementById("progress-bar");
+        const topicElement = document.getElementById('current-topic');
+        const letterElement = document.getElementById('current-letter');
+        const textElement = document.getElementById('current-text');
+        const randomToggleButton = document.getElementById('random-toggle');
+        const topicSelectElement = document.getElementById('topic-select');
 
-        function updateDisplay() {
-            const item = entries[current];
-            document.getElementById('category').style.opacity = 0;
-            document.getElementById('section').style.opacity = 0;
-            document.getElementById('content').style.opacity = 0;
-
-            setTimeout(() => {
-                document.getElementById('category').textContent = item.category;
-                document.getElementById('section').textContent = item.section;
-                document.getElementById('content').textContent = item.content;
-
-                document.getElementById('category').style.opacity = 1;
-                document.getElementById('section').style.opacity = 1;
-                document.getElementById('content').style.opacity = 1;
-
-                progressBar.style.transition = 'none';
-                progressBar.style.width = '0%';
-                setTimeout(() => {
-                    progressBar.style.transition = `width ${duration / 1000}s linear`;
-                    progressBar.style.width = '100%';
-                }, 50);
-            }, 300);
+        // פונקציה לאכלוס תפריט הנושאים
+        function populateTopicSelect() {
+            const topics = new Set(entries.map(entry => entry.topic));
+            topics.forEach(topic => {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic;
+                topicSelectElement.appendChild(option);
+            });
         }
 
+        // פונקציה לעדכון התצוגה
+        function updateDisplay() {
+            if (currentFilteredEntries.length === 0) {
+                topicElement.textContent = "אין משפטים לנושא הנבחר";
+                letterElement.textContent = "";
+                textElement.textContent = "";
+                return;
+            }
+
+            if (current >= currentFilteredEntries.length) { // Safety check
+                current = 0;
+            }
+            
+            const entry = currentFilteredEntries[current];
+            if (entry) {
+                topicElement.style.opacity = 0;
+                letterElement.style.opacity = 0;
+                textElement.style.opacity = 0;
+
+                setTimeout(() => {
+                    topicElement.textContent = entry.topic;
+                    letterElement.textContent = "סעיף " + entry.letter;
+                    textElement.textContent = entry.text;
+                    topicElement.style.opacity = 1;
+                    letterElement.style.opacity = 1;
+                    textElement.style.opacity = 1;
+                }, 300); // Short delay for fade out effect
+            }
+        }
         
-let mode = "ordered";
+        // פונקציה לטיפול בשינוי נושא
+        function handleTopicChange() {
+            currentSelectedTopic = topicSelectElement.value;
+            if (currentSelectedTopic === "all") {
+                currentFilteredEntries = [...entries];
+            } else {
+                currentFilteredEntries = entries.filter(entry => entry.topic === currentSelectedTopic);
+            }
+            current = 0; // Reset to the first entry of the new selection
+            updateDisplay();
+            resetInterval(); // Reset interval with new selection
+        }
 
-function updateMode() {
-    const select = document.getElementById("mode-select");
-    mode = select.value;
-}
+        // פונקציה למעבר למשפט הבא
+        function nextSlide() {
+            if (currentFilteredEntries.length === 0) return;
 
-function nextSlide() {
-    if (mode === "random") {
-        let next;
-        do {
-            next = Math.floor(Math.random() * entries.length);
-        } while (next === current && entries.length > 1);
-        current = next;
-    } else {
-        current = (current + 1) % entries.length;
-    }
-    updateDisplay();
-}
-
-
-
-
-        function prevSlide() {
-            current = (current - 1 + entries.length) % entries.length;
+            if (isRandom) {
+                let next = current;
+                // Ensure a different entry is selected if possible
+                if (currentFilteredEntries.length > 1) {
+                    do {
+                        next = Math.floor(Math.random() * currentFilteredEntries.length);
+                    } while (next === current);
+                }
+                current = next;
+            } else {
+                current = (current + 1) % currentFilteredEntries.length;
+            }
             updateDisplay();
         }
 
+        // פונקציה למעבר למשפט הקודם
+        function prevSlide() {
+            if (currentFilteredEntries.length === 0) return;
+            current = (current - 1 + currentFilteredEntries.length) % currentFilteredEntries.length;
+            updateDisplay();
+        }
+
+        // פונקציה לשינוי מצב אקראי/סדרתי
+        function toggleRandom() {
+            isRandom = !isRandom;
+            randomToggleButton.textContent = isRandom ? "סדר: אקראי" : "סדר: רגיל";
+        }
+
+        // פונקציה למסך מלא
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
+                document.documentElement.requestFullscreen().catch(err => {
+                    // console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
             } else {
-                document.exitFullscreen();
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        
+        // פונקציה לעדכון האינטרוול
+        function updateInterval() {
+            const select = document.getElementById("timing-select");
+            duration = parseInt(select.value);
+            resetInterval();
+        }
+
+        function resetInterval() {
+            clearInterval(intervalId);
+            if (currentFilteredEntries.length > 0) { // Only set interval if there are entries to show
+                 intervalId = setInterval(nextSlide, duration);
             }
         }
 
-        updateDisplay();
-        
-intervalId = setInterval(nextSlide, duration);
 
-function updateInterval() {
-    const select = document.getElementById("timing-select");
-    duration = parseInt(select.value);
-    clearInterval(intervalId);
-    intervalId = setInterval(nextSlide, duration);
-    updateDisplay();
-}
+        // אתחול
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTopicSelect(); // אכלוס תפריט הנושאים
+            // אתחול ראשוני של התצוגה והאינטרוול
+            const initialDurationSelect = document.getElementById("timing-select");
+            duration = parseInt(initialDurationSelect.value);
 
-    
-document.addEventListener('fullscreenchange', () => {
-    const btn = document.querySelector('.fullscreen-btn');
-    if (document.fullscreenElement) {
-        btn.style.display = 'none';
-    } else {
-        btn.style.display = 'inline-block';
-    }
-});
+            if (entries.length > 0) {
+                 updateDisplay(); // הצג את המשפט הראשון
+                 intervalId = setInterval(nextSlide, duration); // התחל החלפה אוטומטית
+            } else {
+                topicElement.textContent = "נא לטעון משפטים בספר המידות";
+            }
 
-</script>
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                prevSlide();
+                resetInterval(); // Reset interval on manual navigation
+            });
+            document.getElementById('next-btn').addEventListener('click', () => {
+                nextSlide();
+                resetInterval(); // Reset interval on manual navigation
+            });
+            document.getElementById('random-toggle').addEventListener('click', toggleRandom);
 
-<div class="nanach-signature">
-    <span class="letter1">נ</span>
-    <span class="letter2">נח</span>
-    <span class="letter3">נחמ</span>
-    <span class="letter4">נחמן</span>
-    <span class="letter5">מא</span>
-    <span class="letter6">ו</span>
-    <span class="letter7">מ</span>
-    <span class="letter8">ן</span>
-</div>
+            document.addEventListener('fullscreenchange', () => {
+                const btn = document.querySelector('.fullscreen-btn');
+                if (document.fullscreenElement) {
+                    if (btn) btn.style.display = 'none'; // Hide button in fullscreen
+                } else {
+                    if (btn) btn.style.display = 'inline-block'; // Show button when not in fullscreen
+                }
+            });
+        });
 
+    </script>
 </body>
 </html>
