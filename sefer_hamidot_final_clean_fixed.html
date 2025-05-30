@@ -124,9 +124,6 @@
         }
 
         @media (max-width: 600px) {
-            body.fullscreen-active .top-bar { /* Ensure this doesn't override the general hide rule if not intended */
-                 /* display: none !important; -- This is already handled by the non-media query rule */
-            }
             .top-bar:not(body.fullscreen-active .top-bar) {
                 flex-direction: column;
                 align-items: center;
@@ -195,8 +192,7 @@
     </div>
 
     <script>
-        // הנתונים ייטענו לכאן באופן דינמי
-        let entries = [];
+        let entries = []; // הנתונים ייטענו לכאן
         let current = 0;
         let isRandom = false;
         let duration = 7000;
@@ -214,19 +210,165 @@
         const HEBREW_LETTERS_TO_NUMBER = {
             'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10,
             'כ': 20, 'ל': 30, 'מ': 40, 'נ': 50, 'ס': 60, 'ע': 70, 'פ': 80, 'צ': 90, 'ק': 100,
-            'ר': 200, 'ש': 300, 'ת': 400
+            'ר': 200, 'ש': 300, 'ת': 400, 'ך': 20, 'ם': 40, 'ן': 50, 'ף': 80, 'ץ': 90,
+            'יא': 11, 'יב': 12, 'יג': 13, 'יד': 14, 'טו': 15, 'טז': 16, 'יז': 17, 'יח': 18, 'יט': 19,
+            'כא': 21, 'כב': 22, 'כג': 23, 'כד': 24, 'כה': 25, 'כו': 26, 'כז': 27, 'כח': 28, 'כט': 29,
+            'לא': 31, 'לב': 32, 'לג': 33, 'לד': 34, 'לה': 35, 'לו': 36, 'לז': 37, 'לח': 38, 'לט': 39,
+            'מא': 41, 'מב': 42, 'מג': 43, 'מד': 44, 'מה': 45, 'מו': 46, 'מז': 47, 'מח': 48, 'מט': 49,
+            'נא': 51, 'נב': 52, 'נג': 53, 'נד': 54, 'נה': 55 // הוסף עוד לפי הצורך
         };
 
+        function hebrewLetterToValue(letter) {
+            return HEBREW_LETTERS_TO_NUMBER[letter] || 0;
+        }
+
         function hebrewSectionToKey(hebrewSection) {
+            if (HEBREW_LETTERS_TO_NUMBER[hebrewSection]) {
+                return HEBREW_LETTERS_TO_NUMBER[hebrewSection];
+            }
             let sum = 0;
-            for (let char of hebrewSection) {
-                sum += HEBREW_LETTERS_TO_NUMBER[char] || 0;
+            // פשוט ננסה לחבר ערכים אם זה לא מפתח ידוע, למרות שעדיף להגדיר את כל המפתחות
+            for (let i = 0; i < hebrewSection.length; i++) {
+                sum += hebrewLetterToValue(hebrewSection[i]);
             }
             return sum;
         }
 
+        function parseMidotText(text) {
+            const lines = text.split('\n');
+            const parsedEntries = [];
+            let currentTopicBase = "";
+            let currentTopicDisplay = "";
+            let isPartTwoActive = false;
+            let sectionContent = "";
+            let currentLetter = "";
+            let processingMode = "LOOKING_FOR_TOPIC_START_AFTER_HEADER"; // Modes: LOOKING_FOR_TOPIC_START_AFTER_HEADER, LOOKING_FOR_TOPIC, IN_TOPIC_LOOKING_FOR_SECTION, IN_SECTION_CONTENT
 
-        async function loadAndParseEntries() {
+            const knownTopicsListFromUser = "אמת הכנסת אורחים אהבה אמונה אכילה אלמן ארץ-ישראל אבדה בנים בית בושה בגדים בטחון בשורה ברכה בכיה גאוה גנבה וגזלה דעת דרך דין המתקת דין התבודדות הרהורים התנשאות הצלחה הריון הוראה ודוי דברים ותרן זיפן זכות אבות זכירה זקנים זריזות חלום חן חנפה חקירה חדושין דאוריתא חתון טבע טלטול טהרה ישועה יראה יחוס כבוד כעס כשוף למוד לשון הרע ליצנות מריבה ממון מפלת מסור משקה משיח מוהל מפרסם נאוף נדה נפילה נבול-פה נהנה מאחרים נגינה נסיון נר תמיד ספירת העמר סוד ספר סגולה ענוה עצבות עצירות עברה עצלות ענש עצה עזות פחד פדיון שבויים פרישות פוסק צדקה צדיק קליפה קנאה קרי קשוי לילד הרחקת רשעים רחמנות ראיה רפואה שמחה שכרות שרים שחד שלום שבועה שבת שנה שוחט תשובה תוכחה תפלה".split(/\s+/).filter(Boolean);
+            
+            let lineIndex = 0;
+
+            // Skip header lines and initial topic list
+            while(lineIndex < lines.length) {
+                const initialLine = lines[lineIndex].trim();
+                if (initialLine === "אמת" && lines[lineIndex+1] && lines[lineIndex+1].trim() === "________________") { // Assuming "אמת" is the first real topic
+                    processingMode = "LOOKING_FOR_TOPIC";
+                    break;
+                }
+                lineIndex++;
+            }
+
+
+            for (; lineIndex < lines.length; lineIndex++) {
+                let line = lines[lineIndex].trim();
+
+                if (line === "" || line === "________________") {
+                    if (processingMode === "IN_SECTION_CONTENT" && sectionContent && currentLetter && currentTopicDisplay) {
+                        parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                        sectionContent = "";
+                        // נשארים במצב IN_TOPIC_LOOKING_FOR_SECTION כי יכול להיות עוד סעיף
+                        processingMode = "IN_TOPIC_LOOKING_FOR_SECTION";
+                    }
+                    // אם זה קו אחרי שם נושא, עוברים לחיפוש סעיף
+                    if (processingMode === "LOOKING_FOR_TOPIC" && currentTopicBase) {
+                         processingMode = "IN_TOPIC_LOOKING_FOR_SECTION";
+                    }
+                    continue;
+                }
+
+                if (line === "חלק שני") {
+                    if (processingMode === "IN_SECTION_CONTENT" && sectionContent && currentLetter && currentTopicDisplay) {
+                        parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                        sectionContent = "";
+                    }
+                    isPartTwoActive = true;
+                    if (currentTopicBase) {
+                        currentTopicDisplay = currentTopicBase + " (חלק שני)";
+                    }
+                    processingMode = "IN_TOPIC_LOOKING_FOR_SECTION"; // אחרי "חלק שני" מצפים לסעיפים
+                    continue;
+                }
+
+                const sectionMatch = line.match(/^([א-ת]{1,3})\.(?!\S)/);
+
+                if (sectionMatch && (processingMode === "IN_TOPIC_LOOKING_FOR_SECTION" || processingMode === "IN_SECTION_CONTENT" || processingMode === "LOOKING_FOR_TOPIC")) {
+                    if (processingMode === "IN_SECTION_CONTENT" && sectionContent && currentLetter && currentTopicDisplay) {
+                         if (currentLetter !== sectionMatch[1]) { // שמור רק אם זו אות חדשה
+                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                         }
+                    }
+                    currentLetter = sectionMatch[1];
+                    sectionContent = line.substring(sectionMatch[0].length).trim();
+                    if (!currentTopicDisplay && currentTopicBase) { // במקרה שנושא זוהה והגיע סעיף ראשון
+                        currentTopicDisplay = isPartTwoActive ? currentTopicBase + " (חלק שני)" : currentTopicBase;
+                    }
+                    processingMode = "IN_SECTION_CONTENT";
+                } else if (processingMode === "IN_SECTION_CONTENT") {
+                    sectionContent += (sectionContent ? " " : "") + line;
+                } else if (processingMode === "LOOKING_FOR_TOPIC" || processingMode === "IN_TOPIC_LOOKING_FOR_SECTION" ) {
+                    // בדיקה אם השורה היא נושא ידוע (לא מכיל ניקוד, מילה אחת או קצת יותר)
+                    // נושא נמצא בין שני קווים או שקודם לו קו ואחריו קו
+                    const prevLine = (lineIndex > 0) ? lines[lineIndex-1].trim() : "";
+                    const nextLine = (lineIndex < lines.length - 1) ? lines[lineIndex+1].trim() : "";
+
+                    if (
+                        (prevLine === "________________" || processingMode === "LOOKING_FOR_TOPIC") &&
+                        (nextLine === "________________" || nextLine.match(/^([א-ת]{1,3})\.(?!\S)/) || nextLine === "חלק שני") &&
+                        line.length < 35 && // הגבלה על אורך שם נושא
+                        !line.match(/[ַ-ְ]/) && // לא מכיל ניקוד
+                        knownTopicsListFromUser.some(kt => line.startsWith(kt) && line.length <= kt.length + 5 ) // קיים ברשימה המוכרת
+                    ) {
+                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמירת הסעיף האחרון של הנושא הקודם
+                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                            sectionContent = ""; currentLetter = "";
+                        }
+                        currentTopicBase = line;
+                        currentTopicDisplay = line;
+                        isPartTwoActive = false;
+                        processingMode = "IN_TOPIC_LOOKING_FOR_SECTION"; // מצאנו נושא, עכשיו מחפשים סעיפים
+                        // console.log("Topic Identified:", currentTopicDisplay);
+                    } else if (processingMode === "IN_TOPIC_LOOKING_FOR_SECTION") {
+                        // אם אנחנו אמורים לחפש סעיף אבל מצאנו טקסט שלא מתאים, זה יכול להיות בעיה בקובץ
+                        // או שהגענו לנושא הבא ללא קו מפריד
+                        // console.warn("Unexpected line while looking for section:", line, "Current Topic:", currentTopicDisplay);
+                    }
+                }
+            }
+
+            if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון בסוף הקובץ
+                parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+            }
+            
+            // מיון הסעיפים בתוך כל נושא
+            const groupedByTopic = parsedEntries.reduce((acc, entry) => {
+                if (!acc[entry.topic]) {
+                    acc[entry.topic] = [];
+                }
+                acc[entry.topic].push(entry);
+                return acc;
+            }, {});
+
+            const sortedEntries = [];
+             // שמירה על סדר הופעת הנושאים כפי שנקראו מהקובץ
+            const topicOrderFromFile = [];
+            parsedEntries.forEach(entry => {
+                if (!topicOrderFromFile.includes(entry.topic)) {
+                    topicOrderFromFile.push(entry.topic);
+                }
+            });
+
+            for (const topicName of topicOrderFromFile) {
+                if (groupedByTopic[topicName]) {
+                    groupedByTopic[topicName].sort((a, b) => hebrewSectionToKey(a.letter) - hebrewSectionToKey(b.letter));
+                    sortedEntries.push(...groupedByTopic[topicName]);
+                }
+            }
+            // console.log("Final Parsed and Sorted Entries:", sortedEntries);
+            return sortedEntries;
+        }
+
+
+        async function loadAndProcessEntries() {
             const url = 'https://raw.githubusercontent.com/NaNa-148/nanah148/main/midottext_1.txt';
             try {
                 const response = await fetch(url);
@@ -234,120 +376,7 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const text = await response.text();
-                
-                const parsedEntries = [];
-                const lines = text.split('\n');
-                let currentTopicBase = "";
-                let currentTopicDisplay = "";
-                let isPartTwoActive = false;
-                let sectionContent = "";
-                let currentLetter = "";
-
-                // זיהוי הנושאים הראשיים מהרשימה שבתחילת הקובץ (לא חובה, אך יכול לעזור)
-                const mainTopicsList = [];
-                let inTopicListSection = false;
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.includes("אמת") && trimmedLine.includes("הכנסת אורחים")) { // סימן לתחילת רשימת הנושאים
-                        inTopicListSection = true;
-                    }
-                    if (inTopicListSection && trimmedLine === "________________") { // סוף רשימת הנושאים
-                        break;
-                    }
-                    if (inTopicListSection && trimmedLine && !trimmedLine.startsWith("ספר המידות") && !trimmedLine.startsWith("הסבר") && !trimmedLine.startsWith("רשימת נושאים") && !trimmedLine.startsWith("מתחת לכל נושא")) {
-                        trimmedLine.split(/\s+/).forEach(topic => {
-                            if (topic && topic !== "וגזלה" && topic !== "דאוריתא" && topic !== "שבויים" && topic !== "רשעים" && topic !== "העמר" && topic !== "לילד" && topic !== "מאחרים" && topic !== "תמיד" && topic !== "הרע" && topic !== "שני") { // סינון מילים חלקיות
-                                let cleanTopic = topic.replace("וגזלה", "").replace("וגזלה", "").replace("-", " ");
-                                if (!mainTopicsList.includes(cleanTopic)) mainTopicsList.push(cleanTopic);
-                            }
-                        });
-                    }
-                }
-                // console.log("Detected Main Topics:", mainTopicsList);
-
-
-                for (let i = 0; i < lines.length; i++) {
-                    let line = lines[i].trim();
-
-                    if (line === "" || line === "________________" || line.startsWith("הסבר על הקובץ") || line.startsWith("רשימת נושאים") || line.includes("מתחת לכל נושא") || line.includes("יש חלק שני בנושא מסוים") || line.includes("למשל הנושא")) {
-                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון לפני מעבר
-                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
-                            sectionContent = ""; currentLetter = "";
-                        }
-                        continue;
-                    }
-
-                    if (line === "חלק שני") {
-                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון של החלק הראשון
-                             parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
-                             sectionContent = ""; currentLetter = "";
-                        }
-                        isPartTwoActive = true;
-                        if (currentTopicBase) { // אם יש נושא בסיס, עדכן את שם התצוגה
-                            currentTopicDisplay = currentTopicBase + " (חלק שני)";
-                        }
-                        continue;
-                    }
-
-                    const sectionMatch = line.match(/^([א-ת]{1,3})\.(?!\S)/);
-
-                    if (sectionMatch) { // זוהה סעיף
-                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור סעיף קודם אם היה
-                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
-                        }
-                        currentLetter = sectionMatch[1];
-                        sectionContent = line.substring(sectionMatch[0].length).trim();
-                    } else {
-                        // בדיקה אם זו שורת נושא חדש
-                        // נושא הוא בדרך כלל מילה אחת או שתיים, והשורה הבאה (לאחר קווים/ריקים) היא אות סעיף או קו.
-                        let nextMeaningfulLine = "";
-                        let k = i + 1;
-                        while(k < lines.length) {
-                            const tempLine = lines[k].trim();
-                            if (tempLine !== "" && tempLine !== "________________") {
-                                nextMeaningfulLine = tempLine;
-                                break;
-                            }
-                            k++;
-                        }
-
-                        if ( (line.length < 30 && !line.includes("ספר המידות מנוקד")) && (nextMeaningfulLine.match(/^([א-ת]{1,3})\.(?!\S)/) || nextMeaningfulLine === "________________" || nextMeaningfulLine === "חלק שני" )) {
-                             if (sectionContent && currentLetter && currentTopicDisplay) { // שמור סעיף אחרון מנושא קודם
-                                parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
-                                sectionContent = ""; currentLetter = "";
-                            }
-                            currentTopicBase = line;
-                            currentTopicDisplay = line;
-                            isPartTwoActive = false; // איפוס עם כל נושא בסיס חדש
-                        } else if (currentLetter) { // אם זה לא נושא חדש ויש סעיף פעיל, זה המשך טקסט של הסעיף
-                            sectionContent += (sectionContent ? " " : "") + line;
-                        }
-                    }
-                }
-                if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון בסוף הקובץ
-                    parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
-                }
-
-                // מיון הסעיפים בתוך כל נושא לפי סדר האותיות העבריות
-                const groupedByTopic = parsedEntries.reduce((acc, entry) => {
-                    if (!acc[entry.topic]) {
-                        acc[entry.topic] = [];
-                    }
-                    acc[entry.topic].push(entry);
-                    return acc;
-                }, {});
-
-                const sortedEntries = [];
-                for (const topicName in groupedByTopic) {
-                    groupedByTopic[topicName].sort((a, b) => {
-                        return hebrewSectionToKey(a.letter) - hebrewSectionToKey(b.letter);
-                    });
-                    sortedEntries.push(...groupedByTopic[topicName]);
-                }
-
-
-                return sortedEntries;
-
+                return parseMidotText(text);
             } catch (error) {
                 console.error("שגיאה בטעינת או עיבוד הנתונים:", error);
                 topicElement.textContent = "שגיאה בטעינת הנתונים";
@@ -359,15 +388,18 @@
 
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
-             // שמירת הנושא הנבחר הנוכחי (אם יש)
             const previouslySelectedTopicValue = topicSelectElement.value;
 
             while (topicSelectElement.options.length > 1) {
                 topicSelectElement.remove(1);
             }
-            let topicsArray = Array.from(topics);
-            // ניתן למיין את הנושאים כאן אם רוצים, לדוגמה אלפביתית
-            // topicsArray.sort((a,b) => a.localeCompare(b, 'he'));
+            let topicsArray = [];
+             // שמירה על סדר הופעת הנושאים כפי שנקראו מהקובץ
+            entries.forEach(entry => {
+                if (!topicsArray.includes(entry.topic)) {
+                    topicsArray.push(entry.topic);
+                }
+            });
 
 
             topicsArray.forEach(topic => {
@@ -376,25 +408,22 @@
                 option.textContent = topic;
                 topicSelectElement.appendChild(option);
             });
-            // החזרת הבחירה הקודמת אם היא עדיין קיימת ברשימה החדשה
-            if (topics.has(previouslySelectedTopicValue)) {
+            if (topicsArray.includes(previouslySelectedTopicValue)) {
                 topicSelectElement.value = previouslySelectedTopicValue;
             } else {
-                topicSelectElement.value = "all"; // ברירת מחדל אם הנושא הקודם אינו קיים
+                topicSelectElement.value = "all";
             }
         }
 
         function updateDisplay() {
             if (currentFilteredEntries.length === 0) {
-                // אם אין תוצאות מסוננות, אך יש נתונים כלליים, הצג את הראשון מהכללי
                 if (entries.length > 0 && currentSelectedTopic !== "all") {
                      topicElement.textContent = "אין משפטים לנושא: " + currentSelectedTopic;
                      letterElement.textContent = "";
                      textElement.textContent = "אנא בחר נושא אחר או 'כל הנושאים'.";
-                } else if (entries.length === 0 && topicElement.textContent === "טוען נתונים...") {
-                     // השאר את הודעת "טוען נתונים" אם עדיין לא נטענו כלל
-                }
-                else {
+                } else if (entries.length === 0 && (topicElement.textContent === "טוען נתונים..." || topicElement.textContent.startsWith("שגיאה בטעינת"))) {
+                    // השאר הודעת טעינה/שגיאה
+                } else {
                      topicElement.textContent = "לא נמצאו משפטים";
                      letterElement.textContent = "";
                      textElement.textContent = "";
@@ -506,11 +535,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Load and parse entries from external file
-            entries = await loadAndParseEntries(); // Make sure 'entries' is global or passed correctly
+            entries = await loadAndProcessEntries(); 
 
             if (entries.length > 0) {
-                currentFilteredEntries = [...entries]; // Initialize with all entries
+                currentFilteredEntries = [...entries]; 
                 populateTopicSelect();
                 
                 const initialDurationSelect = document.getElementById("timing-select");
