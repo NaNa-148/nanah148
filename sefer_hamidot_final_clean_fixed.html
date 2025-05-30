@@ -33,7 +33,7 @@
             flex-wrap: wrap;
         }
 
-        body.fullscreen-active .top-bar { /* Updated to use class on body */
+        body.fullscreen-active .top-bar {
             display: none !important;
         }
 
@@ -124,8 +124,10 @@
         }
 
         @media (max-width: 600px) {
-            /* .top-bar will be hidden by fullscreen-active .top-bar rule in fullscreen */
-             .top-bar:not(body.fullscreen-active .top-bar) { /* Apply only when not in fullscreen on small screens */
+            body.fullscreen-active .top-bar { /* Ensure this doesn't override the general hide rule if not intended */
+                 /* display: none !important; -- This is already handled by the non-media query rule */
+            }
+            .top-bar:not(body.fullscreen-active .top-bar) {
                 flex-direction: column;
                 align-items: center;
             }
@@ -177,7 +179,7 @@
     </div>
 
     <div class="content-display">
-        <div id="current-topic" class="topic-display">טוען...</div>
+        <div id="current-topic" class="topic-display">טוען נתונים...</div>
         <div id="current-letter" class="letter-display"></div>
         <div id="current-text" class="text-display"></div>
     </div>
@@ -193,88 +195,13 @@
     </div>
 
     <script>
-        const entries = [
-            // אמת - חלק ראשון
-            { topic: "אמת", letter: "א", text: "מִי שֶׁרוֹצֶה לְדַבֵּק אֶת עַצְמוֹ בְּהַשֵּׁם יִתְבָּרַךְ, עַד שֶׁיֵּלֵךְ בְּמַחֲשַׁבְתּוֹ מֵהֵיכָל אֶל הֵיכָל וְיִרְאֶה אֶת הַהֵיכָלוֹת בְּעֵינֵי הַשֵּׂכֶל, יִשְׁמֹר אֶת עַצְמוֹ מִלּוֹמַר שֶׁקֶר אֲפִלּוּ בְּטָעוּת." },
-            { topic: "אמת", letter: "ב", text: "מֻתָּר לְשַׁנּוֹת בִּדְבַר הַשָּׁלוֹם." },
-            { topic: "אמת", letter: "ג", text: "כַּת שַׁקָּרִים אֵינָם מְקַבְּלִים פְּנֵי הַשְּׁכִינָה." },
-            { topic: "אמת", letter: "ד", text: "שָׁרֵי לְהוּ לְצַדִּיקַיָּא לִסְגוּאֵי בְּרַמָּאוּתָא עִם רַמָּאֵי." },
-            { topic: "אמת", letter: "ה", text: "כָּל הַמּוֹסִיף גּוֹרֵעַ." },
-            { topic: "אמת", letter: "ו", text: "עַל-יְדֵי שֶׁקֶר בָּאִים הִרְהוּרֵי עֲבוֹדָה-זָרָה." },
-            { topic: "אמת", letter: "ז", text: "עַל-יְדֵי אֱמֶת לֹא יָמוּת קֹדֶם זְמַנּוֹ הַקָּצוּב." },
-            { topic: "אמת", letter: "ח", text: "מֵרוּחַ פִּיו שֶׁל הַשַּׁקְּרָן נַעֲשָׂה הַיֵּצֶר הָרָע, וּכְּשֶׁיָּבוֹא מָשִׁיחַ אָז לֹא יִהְיֶה שֶּׁקֶר, וּבִשְׁבִיל זֶה לֹא יִהְיֶה יֵצֶר הָרָע בָּעוֹלָם." },
-            { topic: "אמת", letter: "ט", text: "מִי שֶׁהוּא אִישׁ אֱמֶת, אֲזַי הוּא מַכִּיר בְּאַחֵר, אִם אַחֵר דּוֹבֵר שֶׁקֶר אִם לָאו." },
-            { topic: "אמת", letter: "י", text: "הַסִּימָן שֶׁל הַשֶּׁקֶר - כְּשֶׁלֹּא יַסְכִּימוּ עָלָיו רַבִּים, וְהוּא מִשְּׁלשָׁה שֶׁהַקָּדוֹשׁ-בָּרוּךְ-הוּא שׂוֹנְאָן." },
-            { topic: "אמת", letter: "יא", text: "עָשִׁיר מְכַחֵשׁ - אֵין הַדַּעַת סוֹבְלוֹ וְהוּא נִבְזֶה בְּעֵינֵי עַצְמוֹ." },
-            { topic: "אמת", letter: "יב", text: "תִּקּוּן לַפֶּה - שֶׁיִּתֵּן צְדָקָה." },
-            { topic: "אמת", letter: "יג", text: "עַל-יְדֵי אֱמֶת הָעוֹלָם נִשְׁמָר מִכָּל הֶזֵּקוֹת." },
-            { topic: "אמת", letter: "יד", text: "עַל-יְדֵי חֲנֻפָּה בָּא לְשֶׁקֶר." },
-            { topic: "אמת", letter: "טו", text: "מִי שֶׁנּוֹתֵן צְדָקָה שְׂכָרוֹ שֶׁיִּזְכֶּה לֶאֱמֶת." },
-            { topic: "אמת", letter: "טז", text: "הַשַּׁקְרָן שׂוֹנֵא עֲנִיווּת." },
-            { topic: "אמת", letter: "יז", text: "אָדָם נִכָּר עַל-יְדֵי מְשָׁרְתָיו, אִם הוּא אוֹהֵב שֶׁקֶר כִּי זֶה בָּזֶה תָּלוּי. לִפְעָמִים מְשָׁרְתָיו נוֹפְלִים לַעֲבֵרוֹת עַל-יְדֵי שֶׁהוּא שַׁקְרָן, וְלִפְעָמִים הוּא נוֹפֵל לְשֶׁקֶר עַל-יְדֵי מְשָׁרְתָיו, שֶׁאֵינָם הֲגוּנִים." },
-            { topic: "אמת", letter: "יח", text: "כְּשֶׁאֵין אֱמֶת אֵין חֶסֶד. גַּם אֵינוֹ יָכוֹל לַעֲשׂוֹת ]חֶסֶד[ עִם בְּנֵי-אָדָם." },
-            { topic: "אמת", letter: "יט", text: "הַשֶּׁקֶר מְעַכֵּב אֶת הַיְשׁוּעָה, כִּי הַשֶּׁקֶר מְגַלֶּה עֲווֹנוֹתָיו, כְּדֵי שֶׁלֹּא יוֹשִׁיעוּ לוֹ." },
-            { topic: "אמת", letter: "כ", text: "הָאֱמֶת הִוא פּוֹדָה מִכָּל הַצָּרוֹת." },
-            { topic: "אמת", letter: "כא", text: "טוֹב לָאָדָם שֶׁיָּמוּת, מִשֶּׁיִּחְיֶה וְיִהְיֶה שַׁקְרָן בְּעֵינֵי בְּנֵי-אָדָם." },
-            { topic: "אמת", letter: "כב", text: "כְּשֶׁיֵּשׁ אֱמֶת יֵשׁ שָׁלוֹם." },
-            { topic: "אמת", letter: "כג", text: "מִי שֶׁרָחוֹק מֵאֱמֶת, רָחוֹק מִצְּדָקָה." },
-            { topic: "אמת", letter: "כד", text: "עַל-יְדֵי אֱמֶת נִשְׁמָר אוֹת בְּרִית." },
-            { topic: "אמת", letter: "כה", text: "עַל-יְדֵי אֱמֶת יִזְכֶּה לְשֵׁם עוֹלָם." },
-            { topic: "אמת", letter: "כו", text: "אִישׁ וְאִשָּׁה שֶׁרְגִילִין לוֹמַר שֶׁקֶר, הַבָּנִים שֶׁלָּהֶם יִהְיוּ מִתְנַגְּדִים גַּם יִהְיוּ פּוֹגְמִים בַּבְּרִית." },
-            { topic: "אמת", letter: "כז", text: "הַשֶּׁקֶר בָּא עַל-יְדֵי שֶׁמְּקַבֵּל עַל עַצְמוֹ פַּחַד מִבְּנֵי-אָדָם." },
-            { topic: "אמת", letter: "כח", text: "עַל-יְדֵי הַשֶּׁקֶר שׁוֹכְחִין אֶת הַקָּדוֹשׁ-בָּרוּךְ- הוּא." },
-            { topic: "אמת", letter: "כט", text: "מִי שֶׁאֵין לּוֹ בִּטָּחוֹן, הוּא דּוֹבֵר שְׁקָרִים, וְעַל-יְדֵי שְׁקָרִים אֵין יָכוֹל לִבְטֹחַ בָּאֱמֶת." },
-            { topic: "אמת", letter: "ל", text: "לְפִי הַרִחוּק מֵאֱמֶת כֵּן מַחֲזִיק אֶת הַסּוּר- מֵרָע לְשׁוֹטֶה." },
-            { topic: "אמת", letter: "לא", text: "מִי שֶׁרוֹצֶה לָסוּר מֵרָע, וְרוֹאֶה שֶׁאֵין אֱמֶת בָּעוֹלָם, עוֹשֶׂה עַצְמוֹ כְּשֶׁוֹטֶה." },
-            { topic: "אמת", letter: "לב", text: "מִי שֶׁאֵינוֹ אוֹמֵר שֶׁקֶר, הַקָּדוֹשׁ-בָּרוּךְ-הוּא מוֹשִׁיעַ לוֹ בְּעֵת צָרָתוֹ גַּם בָּנִים יִהְיוּ לוֹ." },
-            { topic: "אמת", letter: "לג", text: "עַל-יְדֵי דִּבּוּר שָׁוְא בָּא מַכּוֹת בָּנִים." },
-            { topic: "אמת", letter: "לד", text: "מִי שֶׁמְּקֻשָּׁר לַשָּׁוְא, בָּא לְשִׁכְחָה." },
-            { topic: "אמת", letter: "לה", text: "עַל-יְדֵי שֶׁקֶר בָּא לְנִאוּף, וּמַחֲזִיק יְדֵי מְרֵעִים, שֶׁלֹּא יַחְזְרוּ בִּתְשׁוּבָה." },
-            { topic: "אמת", letter: "לו", text: "עַל-יְדֵי שְׁקָרִים אֵין לוֹ רְפוּאָה אֲפִלּוּ בְּהַרְבֵּה רְפוּאוֹת." },
-            { topic: "אמת", letter: "לז", text: "מִי שֶׁדּוֹבֵר כְּזָבִים נוֹפֵל בַּחֶרֶב. גַּם נַעֲשֶׂה שׁוֹטֶה." },
-            { topic: "אמת", letter: "לח", text: "עַל-יְדֵי יִרְאָה בָּא לֶאֱמֶת." },
-            { topic: "אמת", letter: "לט", text: "מִי שֶׁשּׁוֹמֵר אֶת עַצְמוֹ מִשֶּׁקֶר, הוּא מְנַצֵּחַ תָּמִיד." },
-            { topic: "אמת", letter: "מ", text: "מֻתָּר לְשַׁנּוֹת, כְּדֵי לְהַצִּיל אֶת עַצְמוֹ." },
-            { topic: "אמת", letter: "מא", text: "מִי שֶׁאוֹהֵב כְּזָבִים, הוּא מְבַזֶּה אֶת הַצַּדִּיק גַּם הוּא בְּעַצְמוֹ נִתְבַּזֶּה." },
-            { topic: "אמת", letter: "מב", text: "מִי שֶׁדּוֹבֵר כְּזָבִים, הוּא אוֹבֵד." },
-            { topic: "אמת", letter: "מג", text: "עַל-יְדֵי אֱמֶת נִצּוֹל מִלָּשׁוֹן-הָרָע גַּם תְּפִלָּתוֹ נִתְקַבֵּל. גַּם כְּשֶׁדָּנִים אוֹתוֹ לְמַעְלָה, דָּנִים אוֹתוֹ לְפִי זְכֻיּוֹת שֶׁלּוֹ." },
-            { topic: "אמת", letter: "מד", text: "עַל-יְדֵי חֲלוֹמוֹת יֵדַע אָדָם אִם לִבּוֹ אֱמֶת עִם אֱלֹקָיו." },
-            { topic: "אמת", letter: "מה", text: "מִי שֶׁמְּקַיֵּם דִּבּוּרוֹ, יָכוֹל לַעֲשׂוֹת פְּעֻלּוֹת." },
-            { topic: "אמת", letter: "מו", text: "מִי שֶׁאֵין לוֹ גַּאֲוָה נִצּוֹל מִשָּׁקֶר." },
-            { topic: "אמת", letter: "מז", text: "מִי שֶׁשּׁוֹמֵר אֶת עַצְמוֹ מִשְּׂחוֹק שֶׁל הִתּוּל, בְּיָדוּעַ שֶׁהוּא אִישׁ אֱמֶת." },
-            { topic: "אמת", letter: "מח", text: "מִי שֶׁהָיָה שַׁקְרָן מִגִּלְגּוּל הֶעָבָר, עַל-יְדֵי-זֶה כְּשֶׁנִּתְגַּלְגֵּל, נַעֲשָׂה אִטֵּר-יָד." },
-            { topic: "אמת", letter: "מט", text: "מִי שֶׁשּׁוֹמֵר אֶת עַצְמוֹ וְדוֹבֵר תָּמִיד אֱמֶת, כְּאִלּוּ עָשָׂה שָׁמַיִם וָאָרֶץ וְאֶת הַיָּם וְאֶת כָּל אֲשֶׁר בָּם." },
-            { topic: "אמת", letter: "נ", text: "הַשֶּׁקֶר אֵינוֹ אֶלָּא בְּפִיו, אֲבָל לֹא בִּכְתָב." },
-            { topic: "אמת", letter: "נא", text: "דִּבְּרוּ תּוֹרָה וּנְבִיאִים וַחֲכָמִים בִּלְשׁוֹן הֲבַאי." },
-            // אמת - חלק שני
-            { topic: "אמת (חלק שני)", letter: "א", text: "עַל-יְדֵי שֶׁקֶר דְּבָרָיו אֵינָם נִשְׁמָעִים. גַּם עַל-יְדֵי שֶׁקֶר מְאַלְמֵן, חַס וְשָׁלוֹם, כַּמָּה נָשִׁים." },
-            { topic: "אמת (חלק שני)", letter: "ב", text: "עַל-יְדֵי אֱמֶת נִתְגַּלֶּה יִחוּדוֹ בָּעוֹלָם." },
-            { topic: "אמת (חלק שני)", letter: "ג", text: "כְּשֶׁאַתָּה רוֹאֶה שַׁקְרָן, תֵּדַע, שֶׁגַּם הַמַּנְהִיג שֶׁל הָאִישׁ הַזֶּה שַׁקְרָן." },
-            { topic: "אמת (חלק שני)", letter: "ד", text: "עַל-יְדֵי שֶׁקֶר בָּא לִידֵי גִּלּוּי-עֲרָיוֹת וּשְׁפִיכוּת-דָּמִים, וְגַם מַכְּשֶׁיל אֶת הַכְּשֶׁרִים בְּגִלּוּי-עֲרָיוֹת וּשְׁפִיכוּת-דָּמִים, וּמַרְאֶה הֶתֵּר מִן הַתּוֹרָה." },
-            { topic: "אמת (חלק שני)", letter: "ה", text: "מִי שֶׁאֵינוֹ מְשַׁנֶּה בְּדִבּוּרוֹ, הוּא יָכוֹל לְהַשְׁפִּיל הַגְּבוֹהִים וּלְהַגְבִּיהַּ הַשְּׁפָלִים." },
-            { topic: "אמת (חלק שני)", letter: "ו", text: "מִי שֶׁאֵינוֹ מְדַבֵּר אֶחָד בַּפֶּה וְאֶחָד בַּלֵּב, אֵינוֹ מִתְיָרֵא מִטְבִיעַת מַיִם." },
-            { topic: "אמת (חלק שני)", letter: "ז", text: "הָאֱמֶת מֵבִיא שׂבַע." },
-            { topic: "אמת (חלק שני)", letter: "ח", text: "הַשִּׁלְשׁוּל וְהָעֲצִירוּת בָּא עַל-יְדֵי שֶׁקֶר." },
-            { topic: "אמת (חלק שני)", letter: "ט", text: "עַל-יְדֵי אֱמֶת בָּא הַקֵּץ." },
-            // הכנסת אורחים - חלק ראשון
-            { topic: "הכנסת אורחים", letter: "א", text: "מִי שֶׁאֵין מַכְנִיס אוֹרְחִים, בָּזֶה מַחֲזִיק יְדֵי מְרֵעִים, שֶׁלֹּא יַחְזְרוּ בִּתְשׁוּבָה." },
-            { topic: "הכנסת אורחים", letter: "ב", text: "עִיר שֶׁאֵין בָּהּ הַכְנָסַת אוֹרְחִים בָּאִים לִידֵי גִּלּוּי-עֲרָיוֹת, וְעַל-יְדֵי גִּלּוּי-עֲרָיוֹת בָּא עֲלֵיהֶם הֲרִיגָה." },
-            { topic: "הכנסת אורחים", letter: "ג", text: "הַכְנָסַת אוֹרְחִים מְזַכָּה אֶת הָאִשָּׁה לְבָנִים." },
-            { topic: "הכנסת אורחים", letter: "ד", text: "הַכְנָסַת אוֹרְחִים כְּהַכְנָסַת שַׁבָּת." },
-            { topic: "הכנסת אורחים", letter: "ה", text: "הַמְאָרֵחַ תַּלְמִיד-חָכָם בְּתוֹךְ בֵּיתוֹ - מַעֲלֶה עָלָיו הַכָּתוּב כְּאִלּוּ הִקְרִיב תְּמִידִין." },
-            { topic: "הכנסת אורחים", letter: "ו", text: "גְּדוֹלָה הַכְנָסַת אוֹרְחִים מֵהַשְׁכָּמַת בֵּית- הַמִּדְרָשׁ וְהַקְבָּלַת פְּנֵי שְׁכִינָה." },
-            { topic: "הכנסת אורחים", letter: "ז", text: "כֵּיוָן דְּלָא שְׁכִיחֵי רַבָּנָן גַּבַּיְהוּ כַּכּוּתִיִּים דָּמֵי." },
-            // הכנסת אורחים - חלק שני
-            { topic: "הכנסת אורחים (חלק שני)", letter: "א", text: "עַל-יְדֵי הַכְנָסַת-אוֹרְחִים אֵימָתוֹ מֻטֶּלֶת עַל הַבְּרִיּוֹת." },
-            { topic: "הכנסת אורחים (חלק שני)", letter: "ב", text: "סְגֻלָּה לְהַחֲזִיר לְאִשָּׁה וִסְתָּהּ עַל-יְדֵי הַכְנָסַת-אוֹרְחִים." },
-            { topic: "הכנסת אורחים (חלק שני)", letter: "ג", text: "עַל-יְדֵי קְדֻשַּׁת הַשֵּׁם יִתְבָּרַךְ הַהִתְנַשְּׂאוּת שֶׁל רָאשֵׁי-הַדּוֹר בְּתֹקֶף וָעֹז, וְעַל-יְדֵי-זֶה נֶחְשָׁב בְּעֵינֵי כֹּל הַמִּצְוָה שֶׁל הַכְנָסַת- אוֹרְחִים, וְעַל-יְדֵי-זֶה הַלּוֹמְדִים זוֹכִים שֶׁהֲלָכָה כְּמוֹתָם." }
-        ];
-
+        // הנתונים ייטענו לכאן באופן דינמי
+        let entries = [];
         let current = 0;
         let isRandom = false;
         let duration = 7000;
         let intervalId;
-        let currentFilteredEntries = [...entries];
+        let currentFilteredEntries = [];
         let currentSelectedTopic = "all";
 
         const topicElement = document.getElementById('current-topic');
@@ -282,27 +209,196 @@
         const textElement = document.getElementById('current-text');
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
-        const bodyElement = document.body; 
+        const bodyElement = document.body;
+
+        const HEBREW_LETTERS_TO_NUMBER = {
+            'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10,
+            'כ': 20, 'ל': 30, 'מ': 40, 'נ': 50, 'ס': 60, 'ע': 70, 'פ': 80, 'צ': 90, 'ק': 100,
+            'ר': 200, 'ש': 300, 'ת': 400
+        };
+
+        function hebrewSectionToKey(hebrewSection) {
+            let sum = 0;
+            for (let char of hebrewSection) {
+                sum += HEBREW_LETTERS_TO_NUMBER[char] || 0;
+            }
+            return sum;
+        }
+
+
+        async function loadAndParseEntries() {
+            const url = 'https://raw.githubusercontent.com/NaNa-148/nanah148/main/midottext_1.txt';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                
+                const parsedEntries = [];
+                const lines = text.split('\n');
+                let currentTopicBase = "";
+                let currentTopicDisplay = "";
+                let isPartTwoActive = false;
+                let sectionContent = "";
+                let currentLetter = "";
+
+                // זיהוי הנושאים הראשיים מהרשימה שבתחילת הקובץ (לא חובה, אך יכול לעזור)
+                const mainTopicsList = [];
+                let inTopicListSection = false;
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.includes("אמת") && trimmedLine.includes("הכנסת אורחים")) { // סימן לתחילת רשימת הנושאים
+                        inTopicListSection = true;
+                    }
+                    if (inTopicListSection && trimmedLine === "________________") { // סוף רשימת הנושאים
+                        break;
+                    }
+                    if (inTopicListSection && trimmedLine && !trimmedLine.startsWith("ספר המידות") && !trimmedLine.startsWith("הסבר") && !trimmedLine.startsWith("רשימת נושאים") && !trimmedLine.startsWith("מתחת לכל נושא")) {
+                        trimmedLine.split(/\s+/).forEach(topic => {
+                            if (topic && topic !== "וגזלה" && topic !== "דאוריתא" && topic !== "שבויים" && topic !== "רשעים" && topic !== "העמר" && topic !== "לילד" && topic !== "מאחרים" && topic !== "תמיד" && topic !== "הרע" && topic !== "שני") { // סינון מילים חלקיות
+                                let cleanTopic = topic.replace("וגזלה", "").replace("וגזלה", "").replace("-", " ");
+                                if (!mainTopicsList.includes(cleanTopic)) mainTopicsList.push(cleanTopic);
+                            }
+                        });
+                    }
+                }
+                // console.log("Detected Main Topics:", mainTopicsList);
+
+
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i].trim();
+
+                    if (line === "" || line === "________________" || line.startsWith("הסבר על הקובץ") || line.startsWith("רשימת נושאים") || line.includes("מתחת לכל נושא") || line.includes("יש חלק שני בנושא מסוים") || line.includes("למשל הנושא")) {
+                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון לפני מעבר
+                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                            sectionContent = ""; currentLetter = "";
+                        }
+                        continue;
+                    }
+
+                    if (line === "חלק שני") {
+                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון של החלק הראשון
+                             parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                             sectionContent = ""; currentLetter = "";
+                        }
+                        isPartTwoActive = true;
+                        if (currentTopicBase) { // אם יש נושא בסיס, עדכן את שם התצוגה
+                            currentTopicDisplay = currentTopicBase + " (חלק שני)";
+                        }
+                        continue;
+                    }
+
+                    const sectionMatch = line.match(/^([א-ת]{1,3})\.(?!\S)/);
+
+                    if (sectionMatch) { // זוהה סעיף
+                        if (sectionContent && currentLetter && currentTopicDisplay) { // שמור סעיף קודם אם היה
+                            parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                        }
+                        currentLetter = sectionMatch[1];
+                        sectionContent = line.substring(sectionMatch[0].length).trim();
+                    } else {
+                        // בדיקה אם זו שורת נושא חדש
+                        // נושא הוא בדרך כלל מילה אחת או שתיים, והשורה הבאה (לאחר קווים/ריקים) היא אות סעיף או קו.
+                        let nextMeaningfulLine = "";
+                        let k = i + 1;
+                        while(k < lines.length) {
+                            const tempLine = lines[k].trim();
+                            if (tempLine !== "" && tempLine !== "________________") {
+                                nextMeaningfulLine = tempLine;
+                                break;
+                            }
+                            k++;
+                        }
+
+                        if ( (line.length < 30 && !line.includes("ספר המידות מנוקד")) && (nextMeaningfulLine.match(/^([א-ת]{1,3})\.(?!\S)/) || nextMeaningfulLine === "________________" || nextMeaningfulLine === "חלק שני" )) {
+                             if (sectionContent && currentLetter && currentTopicDisplay) { // שמור סעיף אחרון מנושא קודם
+                                parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                                sectionContent = ""; currentLetter = "";
+                            }
+                            currentTopicBase = line;
+                            currentTopicDisplay = line;
+                            isPartTwoActive = false; // איפוס עם כל נושא בסיס חדש
+                        } else if (currentLetter) { // אם זה לא נושא חדש ויש סעיף פעיל, זה המשך טקסט של הסעיף
+                            sectionContent += (sectionContent ? " " : "") + line;
+                        }
+                    }
+                }
+                if (sectionContent && currentLetter && currentTopicDisplay) { // שמור את הסעיף האחרון בסוף הקובץ
+                    parsedEntries.push({ topic: currentTopicDisplay, letter: currentLetter, text: sectionContent.trim() });
+                }
+
+                // מיון הסעיפים בתוך כל נושא לפי סדר האותיות העבריות
+                const groupedByTopic = parsedEntries.reduce((acc, entry) => {
+                    if (!acc[entry.topic]) {
+                        acc[entry.topic] = [];
+                    }
+                    acc[entry.topic].push(entry);
+                    return acc;
+                }, {});
+
+                const sortedEntries = [];
+                for (const topicName in groupedByTopic) {
+                    groupedByTopic[topicName].sort((a, b) => {
+                        return hebrewSectionToKey(a.letter) - hebrewSectionToKey(b.letter);
+                    });
+                    sortedEntries.push(...groupedByTopic[topicName]);
+                }
+
+
+                return sortedEntries;
+
+            } catch (error) {
+                console.error("שגיאה בטעינת או עיבוד הנתונים:", error);
+                topicElement.textContent = "שגיאה בטעינת הנתונים";
+                textElement.textContent = "אנא בדוק את חיבור האינטרנט או את כתובת הקובץ.";
+                return [];
+            }
+        }
+
 
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
+             // שמירת הנושא הנבחר הנוכחי (אם יש)
+            const previouslySelectedTopicValue = topicSelectElement.value;
+
             while (topicSelectElement.options.length > 1) {
                 topicSelectElement.remove(1);
             }
-            topics.forEach(topic => {
+            let topicsArray = Array.from(topics);
+            // ניתן למיין את הנושאים כאן אם רוצים, לדוגמה אלפביתית
+            // topicsArray.sort((a,b) => a.localeCompare(b, 'he'));
+
+
+            topicsArray.forEach(topic => {
                 const option = document.createElement('option');
                 option.value = topic;
                 option.textContent = topic;
                 topicSelectElement.appendChild(option);
             });
+            // החזרת הבחירה הקודמת אם היא עדיין קיימת ברשימה החדשה
+            if (topics.has(previouslySelectedTopicValue)) {
+                topicSelectElement.value = previouslySelectedTopicValue;
+            } else {
+                topicSelectElement.value = "all"; // ברירת מחדל אם הנושא הקודם אינו קיים
+            }
         }
 
         function updateDisplay() {
             if (currentFilteredEntries.length === 0) {
-                topicElement.textContent = (currentSelectedTopic === "all" && entries.length > 0) ? entries[0].topic : "אין משפטים לנושא הנבחר";
-                letterElement.textContent = (currentSelectedTopic === "all" && entries.length > 0) ? "סעיף " + entries[0].letter : "";
-                textElement.textContent = (currentSelectedTopic === "all" && entries.length > 0) ? entries[0].text : "";
-                if (currentSelectedTopic === "all" && entries.length > 0) current = 0; // Reset current for "all" if needed
+                // אם אין תוצאות מסוננות, אך יש נתונים כלליים, הצג את הראשון מהכללי
+                if (entries.length > 0 && currentSelectedTopic !== "all") {
+                     topicElement.textContent = "אין משפטים לנושא: " + currentSelectedTopic;
+                     letterElement.textContent = "";
+                     textElement.textContent = "אנא בחר נושא אחר או 'כל הנושאים'.";
+                } else if (entries.length === 0 && topicElement.textContent === "טוען נתונים...") {
+                     // השאר את הודעת "טוען נתונים" אם עדיין לא נטענו כלל
+                }
+                else {
+                     topicElement.textContent = "לא נמצאו משפטים";
+                     letterElement.textContent = "";
+                     textElement.textContent = "";
+                }
                 return;
             }
             if (current >= currentFilteredEntries.length) { current = 0; }
@@ -409,22 +505,23 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            populateTopicSelect(); 
-            
-            // Initialize with "all" topics selected if no specific topic is chosen or data is empty for it
-            if (currentSelectedTopic === "all" || currentFilteredEntries.length === 0) {
-                 currentFilteredEntries = [...entries]; // Ensure it's populated for the first display
-            }
-            
-            const initialDurationSelect = document.getElementById("timing-select");
-            duration = parseInt(initialDurationSelect.value);
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load and parse entries from external file
+            entries = await loadAndParseEntries(); // Make sure 'entries' is global or passed correctly
 
             if (entries.length > 0) {
-                 updateDisplay(); 
-                 intervalId = setInterval(nextSlide, duration);
+                currentFilteredEntries = [...entries]; // Initialize with all entries
+                populateTopicSelect();
+                
+                const initialDurationSelect = document.getElementById("timing-select");
+                duration = parseInt(initialDurationSelect.value);
+
+                updateDisplay(); 
+                intervalId = setInterval(nextSlide, duration);
             } else {
-                topicElement.textContent = "נא לטעון משפטים בספר המידות";
+                topicElement.textContent = "טעינת הנתונים נכשלה או לא נמצאו נתונים.";
+                letterElement.textContent = "";
+                textElement.textContent = "אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.";
             }
 
             document.getElementById('prev-btn').addEventListener('click', () => {
@@ -442,6 +539,7 @@
             document.addEventListener('mozfullscreenchange', onFullscreenChange);
             document.addEventListener('MSFullscreenChange', onFullscreenChange);
         });
+
     </script>
 </body>
 </html>
