@@ -31,7 +31,17 @@
             box-sizing: border-box;
             z-index: 999;
             flex-wrap: wrap;
+            transition: opacity 0.3s ease-in-out; /* Added for smooth hide/show */
         }
+        /* Hide top-bar in fullscreen */
+        body:fullscreen .top-bar,
+        body:-webkit-full-screen .top-bar, /* Safari, Chrome */
+        body:-moz-full-screen .top-bar, /* Firefox */
+        body:-ms-fullscreen .top-bar { /* IE/Edge */
+            opacity: 0;
+            pointer-events: none; /* Make it non-interactive when hidden */
+        }
+
         .controls-container {
             display: flex;
             gap: 10px;
@@ -59,7 +69,7 @@
             color: white;
         }
         .fullscreen-btn {
-            /* Style already good */
+            /* Style is part of .control-element or .top-text */
         }
         .content-display {
             max-width: 800px;
@@ -70,47 +80,56 @@
             transition: opacity 0.5s ease-in-out;
         }
         .topic-display {
-            /* font-size: 2.2em; */ /* Original size for reference: approx 35.2px */
-            font-size: calc(2.2em + 30px); /* Increased by 30px */
+            font-size: calc(2.2em + 30px);
             font-weight: bold;
-            color: white; /* Changed from #FFD700 */
+            color: white;
         }
         .letter-display {
-            /* font-size: 1.8em; */ /* Original size for reference: approx 28.8px */
-            font-size: calc(1.8em + 10px); /* Increased by 10px */
-            color: white; /* Changed from #ADD8E6 */
+            font-size: calc(1.8em + 10px);
+            color: white;
         }
         .text-display {
-            /* font-size: 1.6em; */ /* Original size for reference: approx 25.6px */
-            font-size: calc(1.6em + 10px); /* Increased by 10px */
+            font-size: calc(1.6em + 10px);
             line-height: 1.8;
             min-height: 100px;
-            color: white; /* Ensured it is white */
+            color: white;
         }
 
         .nanach-signature {
             position: fixed;
-            bottom: 15px; /* Adjusted for better visibility */
-            right: 15px;  /* Positioned to the bottom right */
-            font-size: 24px; /* Kept original size, can be adjusted if needed */
+            bottom: 15px;
+            right: 15px;
+            font-size: 24px;
             font-weight: bold;
-            color: rgba(255, 255, 255, 0.85); /* White with slight transparency, as per image */
+            /* color: rgba(255, 255, 255, 0.85); */ /* Will be overridden by individual spans */
             display: flex;
             white-space: nowrap;
             font-family: 'David Libre', 'Narkis Block', serif;
-            z-index: 1001; /* Ensure it's above other content */
+            z-index: 1001;
         }
 
-        .nanach-signature span {
+        .nanach-signature span { /* General style for animated parts */
             opacity: 0;
             animation: fadeIn依次 1s forwards;
-            /* margin-left for RTL means space on the right of the element */
         }
-        .nanach-signature .s1 { animation-delay: 0.5s; }
-        .nanach-signature .s2 { animation-delay: 1.0s; margin-right: 0.7em; /* Double space */ }
-        .nanach-signature .s3 { animation-delay: 1.5s; margin-right: 0.7em; /* Double space */ }
-        .nanach-signature .s4 { animation-delay: 2.0s; margin-right: 0.7em; /* Double space */ }
-        .nanach-signature .s5 { animation-delay: 2.5s; margin-right: 0.7em; /* Double space */ }
+
+        /* Specific colors for Na Nach signature parts based on image */
+        .nanach-signature .s1 { color: white; animation-delay: 0.5s; }
+        .nanach-signature .s2 { color: #FFD700; /* Gold/Yellow */ animation-delay: 1.0s; margin-right: 0.7em; }
+        .nanach-signature .s3 { color: #FF7F50; /* Coral/Orange */ animation-delay: 1.5s; margin-right: 0.7em; }
+        .nanach-signature .s4 { color: #87CEEB; /* Sky Blue */ animation-delay: 2.0s; margin-right: 0.7em; }
+        .nanach-signature .s5 { /* For "מאומן" - will be overridden by inner spans if used */
+            animation-delay: 2.5s; margin-right: 0.7em;
+            /* If "מאומן" is a single color, apply it here. Otherwise, use inner spans. */
+            /* Example for single color for מאומן: color: #90EE90; /* Light Green */
+        }
+
+        /* For individual letter coloring within "מאומן" (if s5 is structured with inner spans) */
+        .nanach-signature .s5 .char1 { color: #FFDAB9; } /* Peach for מ */
+        .nanach-signature .s5 .char2 { color: #FFFF00; } /* Yellow for א */
+        .nanach-signature .s5 .char3 { color: #EE82EE; } /* Violet for ו */
+        .nanach-signature .s5 .char4 { color: #98FB98; } /* PaleGreen for מ */
+        .nanach-signature .s5 .char5 { color: #AFEEEE; } /* PaleTurquoise for ן */
 
 
         @keyframes fadeIn依次 {
@@ -127,7 +146,7 @@
                 margin-top:10px;
                 justify-content: center;
             }
-            .topic-display { font-size: calc(1.8em + 30px); } /* Adjusted for smaller screens */
+            .topic-display { font-size: calc(1.8em + 30px); }
             .letter-display { font-size: calc(1.5em + 10px); }
             .text-display { font-size: calc(1.3em + 10px); }
             body { padding: 80px 5% 60px 5%; }
@@ -143,15 +162,22 @@
             <button id="next-btn" class="control-element top-text">הבא</button>
             <button id="random-toggle" class="control-element top-text">סדר: רגיל</button>
             <div class="control-element">
-                <label for="timing-select">זמן (שניות): </label>
+                <label for="timing-select">זמן: </label>
                 <select id="timing-select" onchange="updateInterval()">
-                    <option value="3000">3</option>
-                    <option value="5000">5</option>
-                    <option value="7000" selected>7</option>
-                    <option value="10000">10</option>
-                    <option value="15000">15</option>
-                    <option value="20000">20</option>
-                    <option value="30000">30</option>
+                    <option value="3000">3 שניות</option>
+                    <option value="5000">5 שניות</option>
+                    <option value="7000" selected>7 שניות</option>
+                    <option value="10000">10 שניות</option>
+                    <option value="15000">15 שניות</option>
+                    <option value="20000">20 שניות</option>
+                    <option value="30000">30 שניות</option>
+                    <option value="300000">5 דקות</option>
+                    <option value="900000">15 דקות</option>
+                    <option value="1800000">30 דקות</option>
+                    <option value="3600000">1 שעה</option>
+                    <option value="21600000">6 שעות</option>
+                    <option value="43200000">12 שעות</option>
+                    <option value="86400000">24 שעות</option>
                 </select>
             </div>
              <div class="control-element">
@@ -175,12 +201,13 @@
         <span class="s2">נח</span>
         <span class="s3">נחמ</span>
         <span class="s4">נחמן</span>
-        <span class="s5">מאומן</span>
+        <span class="s5">
+            <span class="char1">מ</span><span class="char2">א</span><span class="char3">ו</span><span class="char4">מ</span><span class="char5">ן</span>
+        </span>
     </div>
 
     <script>
         const entries = [
-            // Using only the first 10 entries for "אמת" as requested for testing
             { topic: "אמת", letter: "א", text: "הַבּוֹרֵחַ מִן הַכָּבוֹד, הַכָּבוֹד רוֹדֵף אַחֲרָיו. וְהָרוֹדֵף אַחַר הַכָּבוֹד, הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ. וְכָל שֶׁכֵּן מִי שֶׁמַּשִּׂיג גְּבוּל חֲבֵרוֹ לְהִתְכַּבֵּד בִּכְבוֹדוֹ, שֶׁאָז בְּוַדַּאי הַכָּבוֹד בּוֹרֵחַ מִמֶּנּוּ." },
             { topic: "אמת", letter: "ב", text: "עַל יְדֵי אֱמֶת דְּקִדּוּשָׁה בָּא עַל יְדֵי זֶה שֶׁמֶץ מִנְהוּ דְּקִדּוּשָׁה." },
             { topic: "אמת", letter: "ג", text: "עַל יְדֵי אֱמֶת נַעֲשֶׂה שָׁלוֹם." },
@@ -193,7 +220,6 @@
             { topic: "אמת", letter: "י", text: "עַל יְדֵי אֱמֶת נִתְקַבְּלִין הַתְּפִלּוֹת." }
         ];
 
-        // המשתנים הגלובליים
         let current = 0;
         let isRandom = false;
         let duration = 7000;
@@ -206,11 +232,10 @@
         const textElement = document.getElementById('current-text');
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
+        const topBarElement = document.querySelector('.top-bar'); // For fullscreen handling
 
-        // פונקציה לאכלוס תפריט הנושאים
         function populateTopicSelect() {
             const topics = new Set(entries.map(entry => entry.topic));
-             // Clear existing options except for "all" to avoid duplicates if called multiple times
             while (topicSelectElement.options.length > 1) {
                 topicSelectElement.remove(1);
             }
@@ -222,7 +247,6 @@
             });
         }
 
-        // פונקציה לעדכון התצוגה
         function updateDisplay() {
             if (currentFilteredEntries.length === 0) {
                 topicElement.textContent = "אין משפטים לנושא הנבחר";
@@ -230,17 +254,13 @@
                 textElement.textContent = "";
                 return;
             }
-
-            if (current >= currentFilteredEntries.length) { // Safety check
-                current = 0;
-            }
+            if (current >= currentFilteredEntries.length) { current = 0; }
             
             const entry = currentFilteredEntries[current];
             if (entry) {
                 topicElement.style.opacity = 0;
                 letterElement.style.opacity = 0;
                 textElement.style.opacity = 0;
-
                 setTimeout(() => {
                     topicElement.textContent = entry.topic;
                     letterElement.textContent = "סעיף " + entry.letter;
@@ -248,30 +268,24 @@
                     topicElement.style.opacity = 1;
                     letterElement.style.opacity = 1;
                     textElement.style.opacity = 1;
-                }, 300); // Short delay for fade out effect
+                }, 300);
             }
         }
         
-        // פונקציה לטיפול בשינוי נושא
         function handleTopicChange() {
             currentSelectedTopic = topicSelectElement.value;
-            if (currentSelectedTopic === "all") {
-                currentFilteredEntries = [...entries];
-            } else {
-                currentFilteredEntries = entries.filter(entry => entry.topic === currentSelectedTopic);
-            }
-            current = 0; // Reset to the first entry of the new selection
+            currentFilteredEntries = (currentSelectedTopic === "all") ? 
+                                     [...entries] : 
+                                     entries.filter(entry => entry.topic === currentSelectedTopic);
+            current = 0;
             updateDisplay();
-            resetInterval(); // Reset interval with new selection
+            resetInterval();
         }
 
-        // פונקציה למעבר למשפט הבא
         function nextSlide() {
             if (currentFilteredEntries.length === 0) return;
-
             if (isRandom) {
                 let next = current;
-                // Ensure a different entry is selected if possible
                 if (currentFilteredEntries.length > 1) {
                     do {
                         next = Math.floor(Math.random() * currentFilteredEntries.length);
@@ -284,33 +298,42 @@
             updateDisplay();
         }
 
-        // פונקציה למעבר למשפט הקודם
         function prevSlide() {
             if (currentFilteredEntries.length === 0) return;
             current = (current - 1 + currentFilteredEntries.length) % currentFilteredEntries.length;
             updateDisplay();
         }
 
-        // פונקציה לשינוי מצב אקראי/סדרתי
         function toggleRandom() {
             isRandom = !isRandom;
             randomToggleButton.textContent = isRandom ? "סדר: אקראי" : "סדר: רגיל";
         }
 
-        // פונקציה למסך מלא
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    // console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                    elem.msRequestFullscreen();
+                }
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
                 }
             }
         }
         
-        // פונקציה לעדכון האינטרוול
         function updateInterval() {
             const select = document.getElementById("timing-select");
             duration = parseInt(select.value);
@@ -319,44 +342,34 @@
 
         function resetInterval() {
             clearInterval(intervalId);
-            if (currentFilteredEntries.length > 0) { // Only set interval if there are entries to show
+            if (currentFilteredEntries.length > 0) {
                  intervalId = setInterval(nextSlide, duration);
             }
         }
 
-
-        // אתחול
         document.addEventListener('DOMContentLoaded', () => {
-            populateTopicSelect(); // אכלוס תפריט הנושאים
-            // אתחול ראשוני של התצוגה והאינטרוול
+            populateTopicSelect();
             const initialDurationSelect = document.getElementById("timing-select");
             duration = parseInt(initialDurationSelect.value);
 
             if (entries.length > 0) {
-                 updateDisplay(); // הצג את המשפט הראשון
-                 intervalId = setInterval(nextSlide, duration); // התחל החלפה אוטומטית
+                 updateDisplay(); 
+                 intervalId = setInterval(nextSlide, duration);
             } else {
                 topicElement.textContent = "נא לטעון משפטים בספר המידות";
             }
 
             document.getElementById('prev-btn').addEventListener('click', () => {
                 prevSlide();
-                resetInterval(); // Reset interval on manual navigation
+                resetInterval();
             });
             document.getElementById('next-btn').addEventListener('click', () => {
                 nextSlide();
-                resetInterval(); // Reset interval on manual navigation
+                resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
 
-            document.addEventListener('fullscreenchange', () => {
-                const btn = document.querySelector('.fullscreen-btn');
-                if (document.fullscreenElement) {
-                    if (btn) btn.style.display = 'none'; // Hide button in fullscreen
-                } else {
-                    if (btn) btn.style.display = 'inline-block'; // Show button when not in fullscreen
-                }
-            });
+            // No need for the JS part that hides the fullscreen button, CSS handles top-bar.
         });
 
     </script>
