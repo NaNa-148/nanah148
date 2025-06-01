@@ -6,30 +6,29 @@
     <style>
         html {
             height: 100%;
-            overflow: hidden; /* מניעת גלילה ברמת ה-HTML */
+            overflow: hidden;
         }
         body {
             margin: 0;
-            /* padding המקורי נשמר, אך כעת הגובה מוגבל יותר בקפידה */
-            padding: 60px 5% 15px 5%; /* הקטנת padding תחתון כדי לתת יותר מקום לתוכן */
-            height: 100vh; /* שימוש ב-height במקום min-height */
-            box-sizing: border-box; /* חשוב כשמשתמשים ב-padding ו-height 100vh */
+            padding: 60px 5% 15px 5%;
+            height: 100vh;
+            box-sizing: border-box;
             background: linear-gradient(to bottom right, #0b1e2f, #1a2e4f);
             color: white;
             font-family: 'Arial', 'Narkis Block', 'David Libre', sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* ממשיך למרכז את content-display */
+            justify-content: center;
             align-items: center;
             text-align: center;
             overflow-x: hidden;
-            overflow-y: hidden; /* מניעת גלילה אנכית ב-body */
+            overflow-y: hidden;
         }
         .top-bar {
             position: fixed;
             top: 10px;
-            width: 100%; /* נשאר כפי שהיה */
-            left:0; /* הבטחת מיקום נכון עם box-sizing */
+            width: 100%;
+            left: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -38,11 +37,9 @@
             z-index: 999;
             flex-wrap: wrap;
         }
-
         body.fullscreen-active .top-bar {
             display: none !important;
         }
-
         .controls-container {
             display: flex;
             gap: 10px;
@@ -69,46 +66,38 @@
             background: #1a2e4f;
             color: white;
         }
-
         .content-display {
             max-width: 800px;
             width: 90%;
-            /* הגדרת גובה מקסימלי כדי להבטיח שהוא לא גולש, 
-               לוקח בחשבון את ה-padding של ה-body וה-top-bar.
-               ניתן לשחק עם הערך 80vh לפי הצורך.
-            */
-            max-height: calc(100vh - 100px); /* לדוגמה: 60px padding-top של body + 15px padding-bottom + קצת מרווח/גובה top-bar */
-            height: auto; /* מאפשר לו לגדול עד ה-max-height */
+            max-height: calc(100vh - 100px); /* מותאם ל-padding של body + top-bar */
+            height: auto;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* ממורכז את התוכן בתוכו אם יש גובה פנוי */
+            justify-content: center;
             align-items: center;
-            overflow: hidden; /* מונע גלישה פנימית אם ה-JS לא מספיק מהר */
+            overflow: hidden;
         }
         .topic-display, .letter-display, .text-display {
             margin-bottom: 15px;
             transition: opacity 0.5s ease-in-out;
-            width: 100%; /* כדי שיתפוס את כל הרוחב של content-display */
-            /* overflow: hidden;  לא חובה כאן אם ה-JS עובד טוב */
+            width: 100%;
         }
         .topic-display {
-            font-size: calc(6em); /* גודל התחלתי/מקסימלי */
+            font-size: calc(6em);
             font-weight: bold;
             color: white;
-            line-height: 1.2; /* התאמת גובה שורה */
+            line-height: 1.2;
         }
         .letter-display {
-            font-size: calc(1.8em + 10px); /* גודל התחלתי/מקסימלי */
+            font-size: calc(1.8em + 10px);
             color: white;
-            line-height: 1.4; /* התאמת גובה שורה */
+            line-height: 1.4;
         }
         .text-display {
-            font-size: calc(3.2em); /* גודל התחלתי/מקסימלי */
-            line-height: 1.8; /* קיים וטוב */
-            /* min-height: 100px; -> הוסר */
+            font-size: calc(3.2em);
+            line-height: 1.8;
             color: white;
         }
-
         .nanach-signature {
             position: fixed;
             bottom: 15px;
@@ -120,12 +109,10 @@
             font-family: 'David Libre', 'Narkis Block', serif;
             z-index: 1001;
         }
-
         .nanach-signature span {
             opacity: 0;
             animation: fadeIn依次 1s forwards;
         }
-
         .nanach-signature .s1 { color: white; animation-delay: 0.5s; }
         .nanach-signature .s2 { color: #FFD700; animation-delay: 1.0s; margin-right: 0.7em; }
         .nanach-signature .s3 { color: #FF7F50; animation-delay: 1.5s; margin-right: 0.7em; }
@@ -138,7 +125,6 @@
         .nanach-signature .s5 .char3 { color: #EE82EE; }
         .nanach-signature .s5 .char4 { color: #98FB98; }
         .nanach-signature .s5 .char5 { color: #AFEEEE; }
-
         #qr-code-image {
             position: fixed;
             bottom: 15px;
@@ -149,18 +135,16 @@
             border: 1px solid white;
             border-radius: 5px;
         }
-
         @keyframes fadeIn依次 {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @media (max-width: 600px) {
             body {
-                 padding: 70px 5% 10px 5%; /* התאמת ריפוד למסך קטן */
+                 padding: 70px 5% 10px 5%;
             }
             .content-display {
-                max-height: calc(100vh - 100px); /* התאמת גובה מקסימלי למסך קטן */
+                max-height: calc(100vh - 100px);
             }
             .top-bar:not(body.fullscreen-active .top-bar) {
                 flex-direction: column;
@@ -170,7 +154,6 @@
                 margin-top:10px;
                 justify-content: center;
             }
-            /* הגדלים המקוריים למסך קטן ישמשו כנקודת התחלה ל-JS */
             .topic-display { font-size: calc(1.8em + 30px); }
             .letter-display { font-size: calc(1.5em + 10px); }
             .text-display { font-size: calc(1.3em + 10px); }
@@ -252,9 +235,6 @@
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
         const bodyElement = document.body;
-
-        // אובייקט לשמירת גדלי הפונט ההתחלתיים מה-CSS
-        let initialCssFontSizes = {};
 
         const HEBREW_LETTERS_TO_NUMBER = {
             'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10,
@@ -424,33 +404,37 @@
             if (!contentContainer) return;
 
             const elementsToAdjust = [
-                { el: topicElement, key: 'topic', minSize: 18 }, // גדלים מינימליים לדוגמה
-                { el: letterElement, key: 'letter', minSize: 12 },
-                { el: textElement, key: 'text', minSize: 10 }
+                // מאפיינים: אלמנט, מפתח לזיהוי, גודל מינימלי, גודל CSS מקורי (יתאכלס בהמשך)
+                { el: topicElement, key: 'topic', minSize: 18, originalCssSize: '' },
+                { el: letterElement, key: 'letter', minSize: 12, originalCssSize: '' },
+                { el: textElement, key: 'text', minSize: 10, originalCssSize: '' }
             ];
             
             const step = 1; // הקטנה של 1 פיקסל בכל פעם
             let currentFontSizesPx = {};
 
-            // החזרת האלמנטים לגדלים ההתחלתיים שלהם מה-CSS (או מהפעם הקודמת שהוגדרו ב-CSS)
+            // שלב 1: איפוס לגודל ה-CSS המקורי וקריאת הגדלים הנוכחיים (בפיקסלים)
             elementsToAdjust.forEach(item => {
-                // השתמש ב-initialCssFontSizes שנשמר ב-DOMContentLoaded
-                item.el.style.fontSize = initialCssFontSizes[item.key] || ''; 
-                currentFontSizesPx[item.key] = parseFloat(window.getComputedStyle(item.el).fontSize);
-                item.el.style.height = 'auto'; // אפשר לאלמנט לחשב גובה טבעי
+                item.el.style.fontSize = ''; // מאפס את ה-inline style, חוזר לגודל מה-stylesheet
+                const computedSize = window.getComputedStyle(item.el).fontSize; // קורא את הגודל המחושב מה-CSS
+                item.originalCssSize = computedSize; // שומר את גודל ה-CSS הנוכחי (כבר בפיקסלים)
+                currentFontSizesPx[item.key] = parseFloat(computedSize); // מאתחל את גודל הפונט לפיקסלים
+                
+                // החל את הגודל המקורי מחדש כ-inline style. 
+                // זה מבטיח שהפונט יהיה בגודל ה-CSS הנכון אם לא צריך הקטנה.
+                item.el.style.fontSize = computedSize; 
+                item.el.style.height = 'auto'; // מאפשר לאלמנט לחשב גובה טבעי
             });
 
             function getTotalHeightOfVisibleContent() {
                 let totalHeight = 0;
                 let visibleElementsCount = 0;
                 elementsToAdjust.forEach(item => {
-                    // בדוק אם האלמנט מכיל טקסט וגלוי (opacity > 0)
                     if (item.el.textContent && item.el.textContent.trim() !== "" && parseFloat(window.getComputedStyle(item.el).opacity) > 0) {
                         totalHeight += item.el.scrollHeight;
                         visibleElementsCount++;
                     }
                 });
-                // הוספת margin בין אלמנטים גלויים
                 if (visibleElementsCount > 1) {
                      totalHeight += (visibleElementsCount - 1) * 15; // margin-bottom is 15px
                 }
@@ -458,26 +442,31 @@
             }
             
             let attempts = 0;
-            const MAX_ATTEMPTS = 200; // מגבלה למניעת לולאות אינסופיות
+            const MAX_ATTEMPTS = 200;
 
-            // הלולאה תרוץ כל עוד התוכן הכולל גבוה יותר מהקונטיינר
-            while (getTotalHeightOfVisibleContent() > contentContainer.clientHeight && attempts < MAX_ATTEMPTS) {
-                let changedSomethingThisIteration = false;
-                for (const item of elementsToAdjust) {
-                    if (item.el.textContent && item.el.textContent.trim() !== "" && parseFloat(window.getComputedStyle(item.el).opacity) > 0) {
-                        if (currentFontSizesPx[item.key] > item.minSize) {
-                            currentFontSizesPx[item.key] -= step;
-                            item.el.style.fontSize = currentFontSizesPx[item.key] + 'px';
-                            changedSomethingThisIteration = true;
+            // שלב 2: רק אם יש גלישה עם גדלי ה-CSS המקוריים, התחל להקטין
+            if (getTotalHeightOfVisibleContent() > contentContainer.clientHeight) {
+                while (getTotalHeightOfVisibleContent() > contentContainer.clientHeight && attempts < MAX_ATTEMPTS) {
+                    let changedSomethingThisIteration = false;
+                    for (const item of elementsToAdjust) {
+                        // בדוק אם האלמנט גלוי ועם תוכן לפני שמנסים לשנותו
+                        if (item.el.textContent && item.el.textContent.trim() !== "" && parseFloat(window.getComputedStyle(item.el).opacity) > 0) {
+                            if (currentFontSizesPx[item.key] > item.minSize) {
+                                currentFontSizesPx[item.key] -= step;
+                                item.el.style.fontSize = currentFontSizesPx[item.key] + 'px';
+                                changedSomethingThisIteration = true;
+                            }
                         }
                     }
+                    if (!changedSomethingThisIteration) {
+                        break; 
+                    }
+                    attempts++;
                 }
-                if (!changedSomethingThisIteration) { // אם אף פונט לא יכול לקטון יותר
-                    break; 
-                }
-                attempts++;
             }
+            // אם לא הייתה גלישה מלכתחילה, הפונטים נשארו בגודל ה-CSS המקורי שלהם.
         }
+
 
         function updateDisplay() {
             if (currentFilteredEntries.length === 0) {
@@ -486,14 +475,14 @@
                      letterElement.textContent = "";
                      textElement.textContent = "אנא בחר נושא אחר או 'כל הנושאים'.";
                 } else if (entries.length === 0 && (topicElement.textContent === "טוען נתונים..." || topicElement.textContent.startsWith("שגיאה בטעינת"))) {
-                    // השאר הודעת טעינה/שגיאה
+                     // הודעת טעינה/שגיאה נשארת
                 } else {
                      topicElement.textContent = "לא נמצאו משפטים";
                      letterElement.textContent = "";
                      textElement.textContent = "";
                 }
-                // גם אם אין תוכן, ננסה להתאים את הפונטים (למקרה שיש הודעות שגיאה ארוכות)
-                adjustAllFontSizes(); 
+                 // קריאה להתאמת הפונטים גם אם אין תוכן (להודעות שגיאה וכו')
+                setTimeout(adjustAllFontSizes, 0); // setTimeout קצר כדי לאפשר לדפדפן לעבד טקסט לפני התאמה
                 return;
             }
             if (current >= currentFilteredEntries.length) { current = 0; }
@@ -504,19 +493,17 @@
                 letterElement.style.opacity = 0;
                 textElement.style.opacity = 0;
 
-                // setTimeout כדי לאפשר ל-opacity להתאפס לפני הצגת התוכן החדש והתאמת הפונט
                 setTimeout(() => {
                     topicElement.textContent = entry.topic;
                     letterElement.textContent = "סעיף " + entry.letter;
                     textElement.textContent = entry.text;
 
-                    // התאמת גודל הפונט לאחר שהטקסט הוכנס ולפני שהאלמנטים הופכים לגלויים
-                    adjustAllFontSizes();
+                    adjustAllFontSizes(); // התאם פונטים *אחרי* שהטקסט הוכנס
 
                     topicElement.style.opacity = 1;
                     letterElement.style.opacity = 1;
                     textElement.style.opacity = 1;
-                }, 50); // זמן קצר מאוד, מספיק ל-JS לעבד לפני תחילת אנימציית ה-opacity
+                }, 50); // זמן קצר לאפשר ל-JS לעבד לפני אנימציית opacity
             }
         }
         
@@ -591,8 +578,7 @@
             } else {
                 bodyElement.classList.remove('fullscreen-active');
             }
-            // התאם מחדש את גודל הפונט לאחר שינוי מצב מסך מלא, כי הגובה הזמין עשוי להשתנות
-            setTimeout(adjustAllFontSizes, 50); // השהייה קטנה לתת לדפדפן לעדכן פריסה
+            setTimeout(adjustAllFontSizes, 50);
         }
 
         function updateInterval() {
@@ -609,18 +595,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // שמירת גדלי הפונט המקוריים מה-CSS לאחר שה-DOM טעון
-            initialCssFontSizes.topic = window.getComputedStyle(topicElement).fontSize;
-            initialCssFontSizes.letter = window.getComputedStyle(letterElement).fontSize;
-            initialCssFontSizes.text = window.getComputedStyle(textElement).fontSize;
-            
-            // האזנה לשינוי גודל החלון כדי להתאים פונטים מחדש
             window.addEventListener('resize', () => {
-                // עדכון גדלי הפונט ההתחלתיים מה-CSS אם הם מבוססי viewport units או השתנו עקב media queries
-                initialCssFontSizes.topic = window.getComputedStyle(topicElement).fontSize;
-                initialCssFontSizes.letter = window.getComputedStyle(letterElement).fontSize;
-                initialCssFontSizes.text = window.getComputedStyle(textElement).fontSize;
-                adjustAllFontSizes();
+                setTimeout(adjustAllFontSizes, 50); // התאמה גם בשינוי גודל חלון
             });
 
             entries = await loadAndProcessEntries(); 
@@ -640,7 +616,7 @@
                      letterElement.textContent = "";
                      textElement.textContent = "אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.";
                 }
-                adjustAllFontSizes(); // נסה להתאים גם הודעות שגיאה
+                setTimeout(adjustAllFontSizes, 0);
             }
 
             document.getElementById('prev-btn').addEventListener('click', () => {
