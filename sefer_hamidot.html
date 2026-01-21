@@ -747,11 +747,18 @@
 
             var idleEvents = window.idleEvents || ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
             window.idleEvents = idleEvents;
+            const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
             idleEvents.forEach(eventName => {
                 document.addEventListener(eventName, startIdleFullscreenTimer, { passive: true });
             });
             startIdleFullscreenTimer();
             loadHealingNames();
+
+            const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+            idleEvents.forEach(eventName => {
+                document.addEventListener(eventName, startIdleFullscreenTimer, { passive: true });
+            });
+            startIdleFullscreenTimer();
 
             document.addEventListener('fullscreenchange', onFullscreenChange);
             document.addEventListener('webkitfullscreenchange', onFullscreenChange);
