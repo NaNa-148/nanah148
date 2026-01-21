@@ -37,18 +37,18 @@
             z-index: 998;
             --progress-angle: 0deg;
             --progress-color: rgba(255, 255, 255, 0.7);
-            --progress-glow: rgba(255, 255, 255, 0.25);
+            --progress-shadow: rgba(0, 0, 0, 0.6);
             background: conic-gradient(
                 from -90deg,
                 var(--progress-color) 0deg,
                 var(--progress-color) var(--progress-angle),
-                rgba(255, 255, 255, 0.12) var(--progress-angle),
-                rgba(255, 255, 255, 0.12) 360deg
+                transparent var(--progress-angle),
+                transparent 360deg
             );
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            box-shadow: 0 0 14px var(--progress-glow);
+            filter: drop-shadow(0 0 10px var(--progress-shadow));
         }
         .progress-frame.starry::after {
             content: "";
@@ -58,15 +58,20 @@
             pointer-events: none;
             background: repeating-conic-gradient(
                 from -90deg,
-                rgba(255, 255, 255, 0.65) 0deg,
-                rgba(255, 255, 255, 0.65) 0.6deg,
-                transparent 1.2deg,
-                transparent 6deg
+                rgba(255, 255, 255, 0.9) 0deg,
+                rgba(255, 255, 255, 0.9) 0.4deg,
+                transparent 1.1deg,
+                transparent 5.5deg
             );
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            -webkit-mask: conic-gradient(#000 0deg var(--progress-angle), transparent var(--progress-angle) 360deg),
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: source-in, xor;
+            mask: conic-gradient(#000 0deg var(--progress-angle), transparent var(--progress-angle) 360deg),
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            mask-composite: intersect, exclude;
+            filter: drop-shadow(0 0 6px var(--progress-shadow));
         }
         .progress-frame.hidden {
             display: none;
@@ -702,7 +707,7 @@
             const theme = themeOptions.find(option => option.id === themeId) || themeOptions[0];
             bodyElement.style.setProperty('--page-background', theme.background);
             bodyElement.style.setProperty('--progress-color', theme.progressColor || 'rgba(255, 255, 255, 0.7)');
-            bodyElement.style.setProperty('--progress-glow', (theme.progressColor || 'rgba(255, 255, 255, 0.7)').replace('0.7', '0.25'));
+            bodyElement.style.setProperty('--progress-shadow', 'rgba(0, 0, 0, 0.6)');
             bodyElement.dataset.theme = theme.id;
         }
 
