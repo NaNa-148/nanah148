@@ -28,6 +28,26 @@
         body[data-theme] {
             background: var(--page-background, linear-gradient(to bottom right, #0b1e2f, #1a2e4f));
         }
+        .progress-frame {
+            position: fixed;
+            inset: 10px;
+            padding: 3px;
+            border-radius: 14px;
+            pointer-events: none;
+            z-index: 998;
+            --progress-angle: 0deg;
+            background: conic-gradient(
+                from -90deg,
+                rgba(255, 255, 255, 0.7) 0deg,
+                rgba(255, 255, 255, 0.7) var(--progress-angle),
+                rgba(255, 255, 255, 0.15) var(--progress-angle),
+                rgba(255, 255, 255, 0.15) 360deg
+            );
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.25);
+        }
         .top-bar {
             position: fixed;
             top: 10px;
@@ -197,6 +217,8 @@
         <button class="fullscreen-btn top-text" onclick="toggleFullScreen()">מסך מלא</button>
     </div>
 
+    <div class="progress-frame" id="progress-frame"></div>
+
     <div class="content-display">
         <div id="current-topic" class="topic-display">טוען נתונים...</div>
         <div id="current-letter" class="letter-display"></div>
@@ -218,6 +240,8 @@
         let currentSelectedTopic = "all";
         let idleTimeoutId;
         let themeAdvanceCount = 0;
+        let lastSlideChange = performance.now();
+        let progressAnimationId;
 
         const topicElement = document.getElementById('current-topic');
         const letterElement = document.getElementById('current-letter');
@@ -225,6 +249,7 @@
         const randomToggleButton = document.getElementById('random-toggle');
         const topicSelectElement = document.getElementById('topic-select');
         const bodyElement = document.body;
+        const progressFrameElement = document.getElementById('progress-frame');
         const themeSelectElement = document.getElementById('theme-select');
         const themeStorageKey = 'backgroundTheme';
         const themeOptions = [
@@ -374,7 +399,7 @@
             } catch (error) {
                 console.error("שגיאה בטעינת או עיבוד הנתונים:", error);
                 topicElement.textContent = "שגיאה בטעינת הנתונים";
-                textElement.textContent = `אירע שגיאה: ${error.message}. אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.`;
+                textElement.textContent = `אירעה שגיאה: ${error.message}. אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.`;
                 return [];
             }
         }
@@ -498,6 +523,7 @@
                     topicElement.style.opacity = 1;
                     letterElement.style.opacity = 1;
                     textElement.style.opacity = 1;
+                    markSlideChange();
                 }, 50); 
             }
         }
@@ -616,6 +642,19 @@
             resetInterval();
         }
 
+        function updateProgressFrame() {
+            const now = performance.now();
+            const elapsed = Math.max(0, now - lastSlideChange);
+            const progress = Math.min(elapsed / duration, 1);
+            const angle = progress * 360;
+            progressFrameElement.style.setProperty('--progress-angle', `${angle}deg`);
+            progressAnimationId = requestAnimationFrame(updateProgressFrame);
+        }
+
+        function markSlideChange() {
+            lastSlideChange = performance.now();
+        }
+
         function applyTheme(themeId) {
             if (themeId === 'random10') {
                 bodyElement.dataset.theme = themeId;
@@ -700,6 +739,11 @@
             populateThemeSelect();
             loadTheme();
             themeSelectElement.addEventListener('change', handleThemeChange);
+            if (progressAnimationId) {
+                cancelAnimationFrame(progressAnimationId);
+            }
+            markSlideChange();
+            updateProgressFrame();
 
             var idleEvents = window.idleEvents || ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
             window.idleEvents = idleEvents;
