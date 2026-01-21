@@ -760,12 +760,86 @@
             });
             startIdleFullscreenTimer();
 
+            var idleEvents = window.idleEvents || ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+            window.idleEvents = idleEvents;
+            idleEvents.forEach(eventName => {
+                document.addEventListener(eventName, startIdleFullscreenTimer, { passive: true });
+            });
+            startIdleFullscreenTimer();
+
             document.addEventListener('fullscreenchange', onFullscreenChange);
             document.addEventListener('webkitfullscreenchange', onFullscreenChange);
             document.addEventListener('mozfullscreenchange', onFullscreenChange);
             document.addEventListener('MSFullscreenChange', onFullscreenChange);
         });
 
+    </script>
+    <script>
+        (function () {
+            if (window.healingNamesInitialized) {
+                return;
+            }
+            window.healingNamesInitialized = true;
+
+            const healingBannerElement = document.getElementById('healing-banner');
+            const healingNamesElement = document.getElementById('healing-names');
+            const healingButton = document.getElementById('healing-btn');
+            const healingStorageKey = 'healingNames';
+
+            function normalizeHealingNames(input) {
+                return input
+                    .split('|')
+                    .map(name => name.trim())
+                    .filter(Boolean);
+            }
+
+            function renderHealingNames(names) {
+                if (!names || names.length === 0) {
+                    healingBannerElement.hidden = true;
+                    healingNamesElement.textContent = '';
+                    return;
+                }
+                healingNamesElement.textContent = names.join(' | ');
+                healingBannerElement.hidden = false;
+            }
+
+            function loadHealingNames() {
+                const saved = localStorage.getItem(healingStorageKey);
+                if (!saved) {
+                    renderHealingNames([]);
+                    return;
+                }
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        renderHealingNames(parsed);
+                    } else {
+                        renderHealingNames([]);
+                    }
+                } catch (error) {
+                    renderHealingNames([]);
+                }
+            }
+
+            function saveHealingNames(names) {
+                localStorage.setItem(healingStorageKey, JSON.stringify(names));
+                renderHealingNames(names);
+            }
+
+            function handleHealingNames() {
+                const current = healingNamesElement.textContent.trim();
+                const example = "מרים בת רחל | אברהם בן חביבה";
+                const input = prompt(`הכנס שמות לרפואה (מופרדים ב- | ):\nלדוגמה: ${example}`, current);
+                if (input === null) {
+                    return;
+                }
+                const names = normalizeHealingNames(input);
+                saveHealingNames(names);
+            }
+
+            healingButton.addEventListener('click', handleHealingNames);
+            loadHealingNames();
+        })();
     </script>
 </body>
 </html>
