@@ -110,43 +110,6 @@
             line-height: 1.8;
             color: white;
         }
-        .nanach-signature {
-            position: fixed;
-            bottom: 15px;
-            right: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            white-space: nowrap;
-            font-family: 'David Libre', 'Narkis Block', serif;
-            z-index: 1001;
-        }
-        .nanach-signature span {
-            opacity: 0;
-            animation: fadeIn依次 1s forwards;
-        }
-        .nanach-signature .s1 { color: white; animation-delay: 0.5s; }
-        .nanach-signature .s2 { color: #FFD700; animation-delay: 1.0s; margin-right: 0.7em; }
-        .nanach-signature .s3 { color: #FF7F50; animation-delay: 1.5s; margin-right: 0.7em; }
-        .nanach-signature .s4 { color: #87CEEB; animation-delay: 2.0s; margin-right: 0.7em; }
-        .nanach-signature .s5 {
-            animation-delay: 2.5s; margin-right: 0.7em;
-        }
-        .nanach-signature .s5 .char1 { color: #FFDAB9; }
-        .nanach-signature .s5 .char2 { color: #FFFF00; }
-        .nanach-signature .s5 .char3 { color: #EE82EE; }
-        .nanach-signature .s5 .char4 { color: #98FB98; }
-        .nanach-signature .s5 .char5 { color: #AFEEEE; }
-        #qr-code-image {
-            position: fixed;
-            bottom: 15px;
-            left: 15px;
-            width: 80px;
-            height: 80px;
-            z-index: 1000;
-            border: 1px solid white;
-            border-radius: 5px;
-        }
         .healing-banner {
             position: fixed;
             bottom: 15px;
@@ -185,13 +148,6 @@
             .topic-display { font-size: calc(1.8em + 30px); }
             .letter-display { font-size: calc(1.5em + 10px); }
             .text-display { font-size: calc(1.3em + 10px); }
-            .nanach-signature { font-size: 20px; bottom: 10px; right: 10px; }
-            #qr-code-image {
-                bottom: 10px;
-                left: 10px;
-                width: 60px;
-                height: 60px;
-            }
             .healing-banner {
                 bottom: 10px;
                 max-width: 85%;
@@ -247,17 +203,6 @@
         <div id="current-text" class="text-display"></div>
     </div>
 
-    <div class="nanach-signature">
-        <span class="s1">נ</span>
-        <span class="s2">נח</span>
-        <span class="s3">נחמ</span>
-        <span class="s4">נחמן</span>
-        <span class="s5">
-            <span class="char1">מ</span><span class="char2">א</span><span class="char3">ו</span><span class="char4">מ</span><span class="char5">ן</span>
-        </span>
-    </div>
-
-    <img src="rabenoQR.png" alt="QR Code" id="qr-code-image">
     <div id="healing-banner" class="healing-banner" hidden>
         <strong>לרפואת:</strong>
         <span id="healing-names"></span>
@@ -272,6 +217,7 @@
         let currentFilteredEntries = [];
         let currentSelectedTopic = "all";
         let idleTimeoutId;
+        let themeAdvanceCount = 0;
 
         const topicElement = document.getElementById('current-topic');
         const letterElement = document.getElementById('current-letter');
@@ -283,6 +229,7 @@
         const themeStorageKey = 'backgroundTheme';
         const themeOptions = [
             { id: 'default', label: 'כחול כהה', background: 'linear-gradient(to bottom right, #0b1e2f, #1a2e4f)' },
+            { id: 'random10', label: 'אקראי כל 10 מידות', background: '' },
             { id: 'midnight', label: 'ליל קטיפה', background: 'linear-gradient(to bottom right, #0c0f1f, #19112f)' },
             { id: 'royal', label: 'מלכותי עמוק', background: 'linear-gradient(to bottom right, #1a1631, #2b2147)' },
             { id: 'forest', label: 'יער עתיק', background: 'linear-gradient(to bottom right, #0f1b17, #1d2f2a)' },
@@ -427,7 +374,7 @@
             } catch (error) {
                 console.error("שגיאה בטעינת או עיבוד הנתונים:", error);
                 topicElement.textContent = "שגיאה בטעינת הנתונים";
-                textElement.textContent = `אירעה שגיאה: ${error.message}. אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.`;
+                textElement.textContent = `אירע שגיאה: ${error.message}. אנא בדוק את חיבור האינטרנט או את תקינות קובץ הנתונים.`;
                 return [];
             }
         }
@@ -554,6 +501,12 @@
                 }, 50); 
             }
         }
+
+        function pickRandomTheme() {
+            const candidates = themeOptions.filter(option => option.id !== 'random10');
+            const randomTheme = candidates[Math.floor(Math.random() * candidates.length)];
+            applyTheme(randomTheme.id);
+        }
         
         function handleTopicChange() {
             currentSelectedTopic = topicSelectElement.value;
@@ -579,6 +532,10 @@
                 current = next;
             } else {
                 current = (current + 1) % currentFilteredEntries.length;
+            }
+            themeAdvanceCount += 1;
+            if (themeSelectElement.value === 'random10' && themeAdvanceCount % 10 === 0) {
+                pickRandomTheme();
             }
             updateDisplay();
         }
@@ -660,6 +617,11 @@
         }
 
         function applyTheme(themeId) {
+            if (themeId === 'random10') {
+                bodyElement.dataset.theme = themeId;
+                pickRandomTheme();
+                return;
+            }
             const theme = themeOptions.find(option => option.id === themeId) || themeOptions[0];
             bodyElement.style.setProperty('--page-background', theme.background);
             bodyElement.dataset.theme = theme.id;
@@ -685,6 +647,7 @@
         function handleThemeChange() {
             const selectedTheme = themeSelectElement.value;
             localStorage.setItem(themeStorageKey, selectedTheme);
+            themeAdvanceCount = 0;
             applyTheme(selectedTheme);
         }
 
