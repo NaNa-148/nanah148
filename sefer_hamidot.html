@@ -181,17 +181,17 @@
         <div class="controls-container">
             <button id="prev-btn" class="control-element top-text">הקודם</button>
             <button id="next-btn" class="control-element top-text">הבא</button>
-            <button id="random-toggle" class="control-element top-text">סדר: רגיל</button>
+            <button id="random-toggle" class="control-element top-text">סדר: אקראי</button>
             <div class="control-element">
                 <label for="timing-select">זמן: </label>
                 <select id="timing-select" onchange="updateInterval()">
                     <option value="3000">3 שניות</option>
                     <option value="5000">5 שניות</option>
-                    <option value="7000" selected>7 שניות</option>
+                    <option value="7000">7 שניות</option>
                     <option value="10000">10 שניות</option>
                     <option value="15000">15 שניות</option>
                     <option value="20000">20 שניות</option>
-                    <option value="30000">30 שניות</option>
+                    <option value="30000" selected>30 שניות</option>
                     <option value="300000">5 דקות</option>
                     <option value="900000">15 דקות</option>
                     <option value="1800000">30 דקות</option>
@@ -232,11 +232,12 @@
     <script>
         let entries = [];
         let current = 0;
-        let isRandom = false;
-        let duration = 7000;
+        let isRandom = true;
+        let duration = 30000;
         let intervalId;
         let currentFilteredEntries = [];
         let currentSelectedTopic = "all";
+        let idleTimeoutId;
 
         const topicElement = document.getElementById('current-topic');
         const letterElement = document.getElementById('current-letter');
@@ -545,7 +546,7 @@
             randomToggleButton.textContent = isRandom ? "סדר: אקראי" : "סדר: רגיל";
         }
 
-        function toggleFullScreen() {
+        function requestFullscreen() {
             const elem = document.documentElement;
             if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
                 if (elem.requestFullscreen) {
@@ -557,17 +558,38 @@
                 } else if (elem.msRequestFullscreen) { 
                     elem.msRequestFullscreen();
                 }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
             }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { 
+                document.msExitFullscreen();
+            }
+        }
+
+        function toggleFullScreen() {
+            const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement;
+            if (!isFullscreen) {
+                requestFullscreen();
+            } else {
+                exitFullscreen();
+            }
+        }
+
+        function startIdleFullscreenTimer() {
+            clearTimeout(idleTimeoutId);
+            idleTimeoutId = setTimeout(() => {
+                const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreenElement || document.msFullscreenElement;
+                if (!isFullscreen) {
+                    requestFullscreen();
+                }
+            }, 20000);
         }
         
         function onFullscreenChange() {
@@ -634,6 +656,12 @@
                 resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
+
+            const idleEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+            idleEvents.forEach(eventName => {
+                document.addEventListener(eventName, startIdleFullscreenTimer, { passive: true });
+            });
+            startIdleFullscreenTimer();
 
             document.addEventListener('fullscreenchange', onFullscreenChange);
             document.addEventListener('webkitfullscreenchange', onFullscreenChange);
