@@ -151,10 +151,6 @@
             transform: translateX(-50%);
             max-width: 70%;
             width: max-content;
-            padding: 10px 16px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 6px;
             font-size: 20px;
             line-height: 1.5;
             z-index: 1000;
@@ -197,7 +193,6 @@
                 bottom: 10px;
                 max-width: 85%;
                 font-size: 16px;
-                padding: 8px 12px;
                 white-space: normal;
             }
         }
@@ -735,7 +730,7 @@
             function loadHealingNames() {
                 const saved = localStorage.getItem(healingStorageKey);
                 if (!saved) {
-                    renderHealingNames([]);
+                    renderHealingNames(["מרים בת רחל", "אברהם בן חביבה"]);
                     return;
                 }
                 try {
