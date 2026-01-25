@@ -84,11 +84,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 15px;
+            padding: 0 clamp(6px, 2vw, 15px);
             box-sizing: border-box;
             z-index: 999;
             flex-wrap: nowrap;
-            gap: 8px;
+            gap: clamp(4px, 1vw, 8px);
             white-space: nowrap;
         }
 
@@ -107,6 +107,12 @@
             align-items: center;
             flex-wrap: nowrap;
             min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
+        }
+        .controls-container > * {
+            flex: 0 1 auto;
+            min-width: 0;
         }
         .top-text, .control-element {
             font-size: clamp(12px, 1.4vw, 16px);
@@ -117,6 +123,10 @@
             color: white;
             border: none;
             cursor: pointer;
+        }
+        .fullscreen-btn {
+            flex: 0 1 auto;
+            min-width: 0;
         }
         .control-element select {
              background: transparent;
@@ -274,6 +284,8 @@
         let themeAdvanceCount = 0;
         let lastSlideChange = performance.now();
         let progressAnimationId;
+        let randomThemeQueue = [];
+        let randomThemeIndex = 0;
 
         const topicElement = document.getElementById('current-topic');
         const letterElement = document.getElementById('current-letter');
@@ -286,6 +298,8 @@
         const themeSelectElement = document.getElementById('theme-select');
         const themeStorageKey = 'backgroundTheme';
         const progressStorageKey = 'progressStyle';
+        const defaultThemeId = 'random10';
+        const defaultProgressStyleId = 'hidden';
         const progressStyles = [
             { id: 'glow', label: 'ברק עדין', className: '' },
             { id: 'starry', label: 'שביל כוכבים', className: 'starry' },
@@ -567,10 +581,29 @@
             }
         }
 
-        function pickRandomTheme() {
-            const candidates = themeOptions.filter(option => option.id !== 'random10');
-            const randomTheme = candidates[Math.floor(Math.random() * candidates.length)];
-            applyTheme(randomTheme.id);
+        function buildRandomThemeQueue() {
+            randomThemeQueue = themeOptions.filter(option => option.id !== 'random10');
+            for (let i = randomThemeQueue.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [randomThemeQueue[i], randomThemeQueue[j]] = [randomThemeQueue[j], randomThemeQueue[i]];
+            }
+            randomThemeIndex = 0;
+        }
+
+        function applyThemeData(theme) {
+            bodyElement.style.setProperty('--page-background', theme.background);
+            bodyElement.style.setProperty('--progress-color', theme.progressColor || 'rgba(255, 255, 255, 0.7)');
+            bodyElement.style.setProperty('--progress-shadow', 'rgba(0, 0, 0, 0.6)');
+            bodyElement.dataset.theme = theme.id;
+        }
+
+        function pickNextRandomTheme() {
+            if (randomThemeQueue.length === 0 || randomThemeIndex >= randomThemeQueue.length) {
+                buildRandomThemeQueue();
+            }
+            const theme = randomThemeQueue[randomThemeIndex];
+            randomThemeIndex += 1;
+            applyThemeData(theme);
         }
         
         function handleTopicChange() {
@@ -600,7 +633,7 @@
             }
             themeAdvanceCount += 1;
             if (themeSelectElement.value === 'random10' && themeAdvanceCount % 10 === 0) {
-                pickRandomTheme();
+                pickNextRandomTheme();
             }
             updateDisplay();
         }
@@ -701,19 +734,17 @@
         function applyTheme(themeId) {
             if (themeId === 'random10') {
                 bodyElement.dataset.theme = themeId;
-                pickRandomTheme();
+                buildRandomThemeQueue();
+                pickNextRandomTheme();
                 return;
             }
             const theme = themeOptions.find(option => option.id === themeId) || themeOptions[0];
-            bodyElement.style.setProperty('--page-background', theme.background);
-            bodyElement.style.setProperty('--progress-color', theme.progressColor || 'rgba(255, 255, 255, 0.7)');
-            bodyElement.style.setProperty('--progress-shadow', 'rgba(0, 0, 0, 0.6)');
-            bodyElement.dataset.theme = theme.id;
+            applyThemeData(theme);
         }
 
         function loadTheme() {
             const savedTheme = localStorage.getItem(themeStorageKey);
-            const themeId = themeOptions.some(option => option.id === savedTheme) ? savedTheme : themeOptions[0].id;
+            const themeId = themeOptions.some(option => option.id === savedTheme) ? savedTheme : defaultThemeId;
             applyTheme(themeId);
             themeSelectElement.value = themeId;
         }
@@ -749,7 +780,7 @@
 
         function loadProgressStyle() {
             const savedStyle = localStorage.getItem(progressStorageKey);
-            const styleId = progressStyles.some(option => option.id === savedStyle) ? savedStyle : progressStyles[0].id;
+            const styleId = progressStyles.some(option => option.id === savedStyle) ? savedStyle : defaultProgressStyleId;
             applyProgressStyle(styleId);
         }
 
