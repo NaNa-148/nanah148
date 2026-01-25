@@ -28,6 +28,29 @@
         body[data-theme] {
             background: var(--page-background, linear-gradient(to bottom right, #0b1e2f, #1a2e4f));
         }
+        .nebula-layer {
+            position: fixed;
+            inset: -20%;
+            pointer-events: none;
+            opacity: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(120, 180, 255, 0.35), transparent 55%),
+                radial-gradient(circle at 80% 20%, rgba(255, 180, 220, 0.3), transparent 60%),
+                radial-gradient(circle at 60% 80%, rgba(160, 120, 255, 0.25), transparent 55%),
+                radial-gradient(circle at 30% 70%, rgba(120, 255, 220, 0.2), transparent 50%);
+            filter: blur(30px) saturate(1.2);
+            animation: nebulaDrift 40s ease-in-out infinite;
+            z-index: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+        body.nebula-on .nebula-layer {
+            opacity: 0.7;
+        }
+        @keyframes nebulaDrift {
+            0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+            50% { transform: translate3d(2%, 1%, 0) scale(1.03); }
+            100% { transform: translate3d(-2%, -1%, 0) scale(1); }
+        }
         .progress-frame {
             position: fixed;
             inset: 10px;
@@ -162,6 +185,8 @@
             justify-content: center; /* ממשיך למרכז את הטקסט בתוך ה-content-display */
             align-items: center;
             overflow: hidden; /* חשוב מאוד למנוע גלישה פנימית */
+            position: relative;
+            z-index: 1;
         }
         .topic-display, .letter-display, .text-display {
             margin-bottom: 15px;
@@ -223,6 +248,7 @@
     </style>
 </head>
 <body>
+    <div class="nebula-layer" id="nebula-layer"></div>
     <div class="top-bar">
         <div class="menu-wrapper">
             <button id="menu-toggle" class="top-text" aria-expanded="false" aria-controls="menu-panel">☰</button>
@@ -232,6 +258,7 @@
                     <button id="next-btn" class="control-element top-text">הבא</button>
                     <button id="random-toggle" class="control-element top-text">סדר: אקראי</button>
                     <button id="healing-btn" class="control-element top-text">שמות לרפואה</button>
+                    <button id="nebula-toggle" class="control-element top-text">ערפילית: כבוי</button>
                     <div class="control-element">
                         <label for="progress-style">טיימר: </label>
                         <select id="progress-style"></select>
@@ -310,8 +337,10 @@
         const themeSelectElement = document.getElementById('theme-select');
         const menuToggleElement = document.getElementById('menu-toggle');
         const menuPanelElement = document.getElementById('menu-panel');
+        const nebulaToggleElement = document.getElementById('nebula-toggle');
         const themeStorageKey = 'backgroundTheme';
         const progressStorageKey = 'progressStyle';
+        const nebulaStorageKey = 'nebulaEnabled';
         const defaultThemeId = 'random10';
         const defaultProgressStyleId = 'hidden';
         const progressStyles = [
@@ -337,9 +366,9 @@
             'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9, 'י': 10,
             'כ': 20, 'ל': 30, 'מ': 40, 'נ': 50, 'ס': 60, 'ע': 70, 'פ': 80, 'צ': 90, 'ק': 100,
             'ר': 200, 'ש': 300, 'ת': 400, 'ך': 20, 'ם': 40, 'ן': 50, 'ף': 80, 'ץ': 90,
-            'יא': 11, 'י': 12, 'יג': 13, 'יד': 14, 'טו': 15, 'טז': 16, 'יז': 17, 'יח': 18, 'יט': 19,
+            'יא': 11, 'יב': 12, 'יג': 13, 'יד': 14, 'טו': 15, 'טז': 16, 'יז': 17, 'יח': 18, 'יט': 19,
             'כא': 21, 'כב': 22, 'כג': 23, 'כד': 24, 'כה': 25, 'כו': 26, 'כז': 27, 'כח': 28, 'כט': 29,
-            'לא': 31, 'לב': 32, 'לג': 33, 'לד': 34, 'לה': 35, 'לו': 36, 'לז': 37, 'לח': 38, 'לט': 39,
+            'לא': 31, 'ל': 32, 'לג': 33, 'לד': 34, 'לה': 35, 'לו': 36, 'לז': 37, 'לח': 38, 'לט': 39,
             'מא': 41, 'מב': 42, 'מג': 43, 'מד': 44, 'מה': 45, 'מו': 46, 'מז': 47, 'מח': 48, 'מט': 49,
             'נא': 51, 'נב': 52, 'נג': 53, 'נד': 54, 'נה': 55, 'נו': 56, 'נז': 57, 'נח': 58, 'נט': 59,
             'סא': 61,
@@ -818,6 +847,17 @@
             }
         }
 
+        function setNebulaEnabled(isEnabled) {
+            bodyElement.classList.toggle('nebula-on', isEnabled);
+            nebulaToggleElement.textContent = isEnabled ? 'ערפילית: פעיל' : 'ערפילית: כבוי';
+            localStorage.setItem(nebulaStorageKey, isEnabled ? 'true' : 'false');
+        }
+
+        function toggleNebula() {
+            const isEnabled = bodyElement.classList.contains('nebula-on');
+            setNebulaEnabled(!isEnabled);
+        }
+
         function setMenuOpen(isOpen) {
             menuPanelElement.classList.toggle('open', isOpen);
             menuToggleElement.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -867,6 +907,7 @@
                 resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
+            nebulaToggleElement.addEventListener('click', toggleNebula);
             menuToggleElement.addEventListener('click', (event) => {
                 event.stopPropagation();
                 toggleMenu();
@@ -891,6 +932,9 @@
             populateThemeSelect();
             loadTheme();
             themeSelectElement.addEventListener('change', handleThemeChange);
+            const savedNebula = localStorage.getItem(nebulaStorageKey);
+            const isNebulaEnabled = savedNebula === 'true';
+            setNebulaEnabled(isNebulaEnabled);
             if (progressAnimationId) {
                 cancelAnimationFrame(progressAnimationId);
             }
