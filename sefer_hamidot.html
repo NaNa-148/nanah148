@@ -82,14 +82,11 @@
             width: 100%;
             left: 0;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             padding: 0 clamp(6px, 2vw, 15px);
             box-sizing: border-box;
             z-index: 999;
-            flex-wrap: nowrap;
-            gap: clamp(4px, 1vw, 8px);
-            white-space: nowrap;
         }
 
         body.fullscreen-active .top-bar {
@@ -101,18 +98,36 @@
             padding-bottom: 30px;
         }
 
+        .menu-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: clamp(4px, 1vw, 8px);
+        }
+
+        .menu-panel {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: rgba(20, 30, 45, 0.95);
+            border-radius: 10px;
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            min-width: min(90vw, 280px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .menu-panel.open {
+            display: flex;
+        }
+
         .controls-container {
             display: flex;
+            flex-direction: column;
+            align-items: stretch;
             gap: 10px;
-            align-items: center;
-            flex-wrap: nowrap;
-            min-width: 0;
-            flex: 1 1 auto;
-            overflow: hidden;
-        }
-        .controls-container > * {
-            flex: 0 1 auto;
-            min-width: 0;
         }
         .top-text, .control-element {
             font-size: clamp(12px, 1.4vw, 16px);
@@ -124,16 +139,13 @@
             border: none;
             cursor: pointer;
         }
-        .fullscreen-btn {
-            flex: 0 1 auto;
-            min-width: 0;
-        }
         .control-element select {
              background: transparent;
              color: white;
              border: none;
              padding: 2px;
              font-size: inherit;
+             width: 100%;
         }
         .control-element option {
             background: #1a2e4f;
@@ -197,11 +209,6 @@
                  /* padding-top נשאר 70px, padding-bottom מוקטן ל-30px למסך קטן */
                  padding: 70px 5% 30px 5%;
             }
-            /* אין צורך ב-max-height נפרד ל-content-display כאן, הוא ימלא את מקומו */
-            .top-bar:not(body.fullscreen-active .top-bar) {
-                flex-direction: row;
-                align-items: center;
-            }
             /* גדלי הפונט ההתחלתיים למסך קטן נשארים, ה-JS יתאים אותם */
             .topic-display { font-size: calc(1.8em + 30px); }
             .letter-display { font-size: calc(1.5em + 10px); }
@@ -217,46 +224,51 @@
 </head>
 <body>
     <div class="top-bar">
-        <div class="controls-container">
-            <button id="prev-btn" class="control-element top-text">הקודם</button>
-            <button id="next-btn" class="control-element top-text">הבא</button>
-            <button id="random-toggle" class="control-element top-text">סדר: אקראי</button>
-            <button id="healing-btn" class="control-element top-text">שמות לרפואה</button>
-            <div class="control-element">
-                <label for="progress-style">טיימר: </label>
-                <select id="progress-style"></select>
-            </div>
-            <div class="control-element">
-                <label for="theme-select">רקע: </label>
-                <select id="theme-select"></select>
-            </div>
-            <div class="control-element">
-                <label for="timing-select">זמן: </label>
-                <select id="timing-select" onchange="updateInterval()">
-                    <option value="3000">3 שניות</option>
-                    <option value="5000">5 שניות</option>
-                    <option value="7000">7 שניות</option>
-                    <option value="10000">10 שניות</option>
-                    <option value="15000">15 שניות</option>
-                    <option value="20000">20 שניות</option>
-                    <option value="30000" selected>30 שניות</option>
-                    <option value="300000">5 דקות</option>
-                    <option value="900000">15 דקות</option>
-                    <option value="1800000">30 דקות</option>
-                    <option value="3600000">1 שעה</option>
-                    <option value="21600000">6 שעות</option>
-                    <option value="43200000">12 שעות</option>
-                    <option value="86400000">24 שעות</option>
-                </select>
-            </div>
-             <div class="control-element">
-                <label for="topic-select">נושא: </label>
-                <select id="topic-select" onchange="handleTopicChange()">
-                    <option value="all">כל הנושאים</option>
-                </select>
+        <div class="menu-wrapper">
+            <button id="menu-toggle" class="top-text" aria-expanded="false" aria-controls="menu-panel">☰</button>
+            <button class="fullscreen-btn top-text" onclick="toggleFullScreen()">מסך מלא</button>
+            <div id="menu-panel" class="menu-panel" role="menu">
+                <div class="controls-container">
+                    <button id="prev-btn" class="control-element top-text">הקודם</button>
+                    <button id="next-btn" class="control-element top-text">הבא</button>
+                    <button id="random-toggle" class="control-element top-text">סדר: אקראי</button>
+                    <button id="healing-btn" class="control-element top-text">שמות לרפואה</button>
+                    <div class="control-element">
+                        <label for="progress-style">טיימר: </label>
+                        <select id="progress-style"></select>
+                    </div>
+                    <div class="control-element">
+                        <label for="theme-select">רקע: </label>
+                        <select id="theme-select"></select>
+                    </div>
+                    <div class="control-element">
+                        <label for="timing-select">זמן: </label>
+                        <select id="timing-select" onchange="updateInterval()">
+                            <option value="3000">3 שניות</option>
+                            <option value="5000">5 שניות</option>
+                            <option value="7000">7 שניות</option>
+                            <option value="10000">10 שניות</option>
+                            <option value="15000">15 שניות</option>
+                            <option value="20000">20 שניות</option>
+                            <option value="30000" selected>30 שניות</option>
+                            <option value="300000">5 דקות</option>
+                            <option value="900000">15 דקות</option>
+                            <option value="1800000">30 דקות</option>
+                            <option value="3600000">1 שעה</option>
+                            <option value="21600000">6 שעות</option>
+                            <option value="43200000">12 שעות</option>
+                            <option value="86400000">24 שעות</option>
+                        </select>
+                    </div>
+                    <div class="control-element">
+                        <label for="topic-select">נושא: </label>
+                        <select id="topic-select" onchange="handleTopicChange()">
+                            <option value="all">כל הנושאים</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
-        <button class="fullscreen-btn top-text" onclick="toggleFullScreen()">מסך מלא</button>
     </div>
 
     <div class="progress-frame" id="progress-frame"></div>
@@ -296,6 +308,8 @@
         const progressFrameElement = document.getElementById('progress-frame');
         const progressStyleElement = document.getElementById('progress-style');
         const themeSelectElement = document.getElementById('theme-select');
+        const menuToggleElement = document.getElementById('menu-toggle');
+        const menuPanelElement = document.getElementById('menu-panel');
         const themeStorageKey = 'backgroundTheme';
         const progressStorageKey = 'progressStyle';
         const defaultThemeId = 'random10';
@@ -804,6 +818,16 @@
             }
         }
 
+        function setMenuOpen(isOpen) {
+            menuPanelElement.classList.toggle('open', isOpen);
+            menuToggleElement.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
+        function toggleMenu() {
+            const isOpen = menuPanelElement.classList.contains('open');
+            setMenuOpen(!isOpen);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             // קריאה ראשונית להתאמת הפונטים אם יש כבר תוכן (למשל הודעת "טוען נתונים")
             // adjustAllFontSizes(); // נדחה לאחרי טעינת הנתונים או ב-updateDisplay
@@ -843,6 +867,24 @@
                 resetInterval();
             });
             document.getElementById('random-toggle').addEventListener('click', toggleRandom);
+            menuToggleElement.addEventListener('click', (event) => {
+                event.stopPropagation();
+                toggleMenu();
+            });
+            document.addEventListener('click', (event) => {
+                if (!menuPanelElement.classList.contains('open')) {
+                    return;
+                }
+                if (menuPanelElement.contains(event.target) || menuToggleElement.contains(event.target)) {
+                    return;
+                }
+                setMenuOpen(false);
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    setMenuOpen(false);
+                }
+            });
             populateProgressStyles();
             loadProgressStyle();
             progressStyleElement.addEventListener('change', handleProgressStyleChange);
